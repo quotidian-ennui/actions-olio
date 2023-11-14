@@ -1,0 +1,39 @@
+name: test-repo-dispatch
+
+on:
+  push:
+    paths:
+      - "repo-dispatch/**"
+      - ".github/workflows/test-repo-dispatch.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "repo-dispatch/**"
+      - ".github/workflows/test-repo-dispatch.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  test-dispatch:
+    name: test-dispatch-event
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+      - name: dispatch
+        id: dispatch
+        uses: ./repo-dispatch
+        with:
+          event_type: test-dispatch
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event_detail: |
+            {
+              "jobname": "test-dispatch"
+            }

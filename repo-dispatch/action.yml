@@ -1,0 +1,48 @@
+name: Repository Dispatch Event
+description: |-
+  Sends a semi-standardised repo-dispatch event using peter-evans/repository-dispatch
+inputs:
+  event_type:
+    description: Used as the event_type in the dispatch event
+    required: true
+  token:
+    description: Override the default token used to create the dispatch event.
+    required: false
+    default: ${{ github.token }}
+  repository:
+    description: Override the default repository you want to send to
+    required: false
+    default: ${{ github.repository }}
+  sha:
+    description: Override github.event.client_payload.base.sha with your own value
+    required: false
+  ref:
+    description: Override github.event.client_payload.base.ref with your own value
+    required: false
+  event_detail:
+    description: |
+      Add data as github.event.client_payload.detail
+      event_override and this should be considered mutually exclusive.
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Dispatch Event
+      id: dispatch
+      uses: peter-evans/repository-dispatch@v2.1.2
+      with:
+        event-type: ${{ inputs.event_type }}
+        client-payload: |-
+          {
+            "repository" : "${{ github.repository }}",
+            "workflow_run_url" : "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+            "event_trigger" : "${{ github.event_name }}",
+            "base" : {
+              "workflow" : "${{ github.workflow }}",
+              "actor" : "${{ github.actor }}",
+              "ref" : "${{ inputs.ref || github.head_ref || github.ref }}",
+              "sha": "${{ inputs.sha || github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}"
+            },
+            "detail": ${{ inputs.event_detail|| '{}' }}
+          }

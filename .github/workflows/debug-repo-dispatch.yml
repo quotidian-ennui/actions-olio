@@ -1,0 +1,20 @@
+name: Debug Repo Dispatch
+run-name: Debug (${{ github.event.action }})
+
+on:
+  repository_dispatch:
+
+permissions: {}
+
+jobs:
+  debug:
+    name: "Debug"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Env & Event
+        uses: hmarr/debug-action@v2
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+          echo "$GITHUB_CONTEXT"
