@@ -7,6 +7,7 @@ on:
   workflow_call:
   workflow_dispatch:
 
+
 defaults:
   run:
     shell: bash
@@ -25,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Archive dependabot.yml
         id: depbot_archive
         run: |
@@ -33,9 +34,9 @@ jobs:
           cp .github/dependabot.yml "$DEPBOT_ARCHIVE"
           echo "archive=$DEPBOT_ARCHIVE" >> "$GITHUB_OUTPUT"
       - name: Generate dependabot.yml
-        uses: makeshift/generate-dependabot-glob-action@v1.3.4
+        uses: makeshift/generate-dependabot-glob-action@5cd45385ce6519f68d574aab9699832b3a5e5031 # v1.3.4
       - name: prettify
-        uses: actionsx/prettier@v3
+        uses: actionsx/prettier@3d9f7c3fa44c9cb819e68292a328d7f4384be206 # v3
         with:
           args: --write ./.github/dependabot.yml
       - name: Dependabot Change Highlights
@@ -59,7 +60,7 @@ jobs:
           echo "first_change=$FIRST_CHANGE" >> "$GITHUB_OUTPUT"
           echo "commit_msg=feat(ci): update dependabot config ($FIRST_CHANGE)" >> "$GITHUB_OUTPUT"
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5.0.2
+        uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # v5.0.2
         with:
           commit-message: "${{ steps.highlight.outputs.commit_msg }}"
           branch: feature/ci-update-dependabot-config-${{ hashFiles('**/dependabot.yml') }}
