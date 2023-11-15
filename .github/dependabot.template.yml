@@ -11,7 +11,7 @@ updates:
       prefix: "deps(ci): "
 
   - package-ecosystem: github-actions
-    directory: "/**/action.yml"
+    directory: "**/action.yml"
     schedule:
       interval: weekly
     allow:

@@ -1,0 +1,55 @@
+# Essentially wraps makeshift/generate-dependabot-glob-action
+name: Regenerate Dependabot Config
+description: |-
+  Regenerate dependabot configuration file and create a pull request with the changes.
+inputs:
+  token:
+    description: Override the default token used to create the resulting PR
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Archive dependabot.yml
+      id: depbot_archive
+      shell: bash
+      run: |
+        DEPBOT_ARCHIVE=$(mktemp -p "$RUNNER_TEMP" -d "depbot-XXXXXXXX")
+        cp .github/dependabot.yml "$DEPBOT_ARCHIVE"
+        echo "archive=$DEPBOT_ARCHIVE" >> "$GITHUB_OUTPUT"
+    - name: Generate dependabot.yml
+      uses: makeshift/generate-dependabot-glob-action@5cd45385ce6519f68d574aab9699832b3a5e5031 # v1.3.4
+    - name: prettify
+      uses: actionsx/prettier@3d9f7c3fa44c9cb819e68292a328d7f4384be206 # v3
+      with:
+        args: --write ./.github/dependabot.yml
+    - name: Dependabot Change Highlights
+      id: highlight
+      # Get the first change we find so that we can use it in the title of the PR
+      # Doesn't matter if it's a removal or an addition the PR title gives us a better
+      # conventional commit
+      #
+      shell: bash
+      run: |
+        WORKING_DIR="${{ steps.depbot_archive.outputs.archive }}"
+        CURRENT="${WORKING_DIR}/current"
+        CHANGED="${WORKING_DIR}/changed"
+        DIFF="${WORKING_DIR}/diff"
+        cd "$WORKING_DIR"
+        curl -fsSL  https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64.tar.gz | tar xz
+        ./yq_linux_amd64 eval '.updates[].directory' < ./dependabot.yml | sort -u > "${CURRENT}"
+        ./yq_linux_amd64 eval '.updates[].directory' < "${{ github.workspace }}/.github/dependabot.yml" | sort -u > "${CHANGED}"
+        comm -3 "${CURRENT}" "${CHANGED}" > "${DIFF}"
+        FIRST_CHANGE=$(basename "$(head -n 1 "${DIFF}" | sed -e 's/^[[:blank:]]*//' -e 's/[[:blank:]]*$//')")
+        echo "first_change=$FIRST_CHANGE" >> "$GITHUB_OUTPUT"
+        echo "commit_msg=feat(ci): update dependabot config ($FIRST_CHANGE)" >> "$GITHUB_OUTPUT"
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # v5.0.2
+      with:
+        commit-message: "${{ steps.highlight.outputs.commit_msg }}"
+        branch: feature/ci-update-dependabot-config-${{ hashFiles('**/dependabot.yml') }}
+        title: "${{ steps.highlight.outputs.commit_msg }}"
+        token: ${{ inputs.token }}
+        body: |
+          Dependabot config has been updated by [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
