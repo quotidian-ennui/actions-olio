@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "**/action.yml"
+      - "**/Dockerfile"
+      - ".github/dependabot.template.yml"
   workflow_dispatch:
 
 
