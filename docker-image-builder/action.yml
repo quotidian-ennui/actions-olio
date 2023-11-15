@@ -86,6 +86,7 @@ runs:
         file: ${{ inputs.dockerfile }}
         platforms: ${{ inputs.image_platforms }}
         push: ${{ inputs.registry_push }}
+        load: ${{ inputs.registry_push == 'false' }}
         tags: ${{ steps.docker_meta.outputs.tags }}
         labels: ${{ steps.docker_meta.outputs.labels }}
         provenance: false
