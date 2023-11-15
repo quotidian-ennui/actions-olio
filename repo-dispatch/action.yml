@@ -36,10 +36,10 @@ runs:
         client-payload: |-
           {
             "repository" : "${{ github.repository }}",
-            "workflow_run_url" : "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-            "event_trigger" : "${{ github.event_name }}",
             "base" : {
+              "event_trigger" : "${{ github.event_name }}",
               "workflow" : "${{ github.workflow }}",
+              "workflow_run_url" : "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
               "actor" : "${{ github.actor }}",
               "ref" : "${{ inputs.ref || github.head_ref || github.ref }}",
               "sha": "${{ inputs.sha || github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}"
