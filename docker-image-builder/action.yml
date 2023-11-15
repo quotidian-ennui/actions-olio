@@ -1,0 +1,91 @@
+name: Docker Build
+description: Build and optionally publish an image.
+inputs:
+  registry_push:
+    description: Whether to push to the registry
+    required: false
+    default: "false"
+  dockerfile:
+    description: Path to the dockerfile
+    required: true
+  image_tag_suffix:
+    description: Suffix for the image name
+    required: false
+    default: ""
+  image_platforms:
+    description: Platforms to build for
+    required: false
+    default: "linux/amd64"
+  ghcr_image_name:
+    description: Github container registry image name (ghcr.io/x/y/z)
+    required: false
+  dockerhub_image_name:
+    description: Dockerhub image name
+    required: false
+  ghcr_user:
+    description: Github container registry username
+    required: false
+  ghcr_token:
+    description: Token for the github container registry
+    required: false
+  dockerhub_user:
+    description: Dockerhub username
+    required: false
+  dockerhub_token:
+    description: Dockerhub token
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+    - name: Login to DockerHub
+      uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+      if: |
+        inputs.registry_push == 'true' &&
+        inputs.dockerhub_user != '' &&
+        inputs.dockerhub_token != ''
+      with:
+        username: ${{ inputs.dockerhub_user }}
+        password: ${{ inputs.dockerhub_token }}
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+      if: |
+        inputs.registry_push == 'true' &&
+        inputs.ghcr_user != '' &&
+        inputs.ghcr_token != ''
+      with:
+        registry: ghcr.io
+        username: ${{ inputs.ghcr_user }}
+        password: ${{ inputs.ghcr_token }}
+    - name: Docker Image Metadata
+      id: docker_meta
+      uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+      with:
+        images: |
+          ${{ inputs.ghcr_image_name }}
+          ${{ inputs.dockerhub_image_name }}
+        flavor: |
+          latest=auto
+          suffix=${{ inputs.image_tag_suffix }},onlatest=true
+        tags: |
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=raw,value=latest,enable={{is_default_branch}}
+    - name: Build Image
+      uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
+      with:
+        # no-cache: true
+        builder: ${{ steps.buildx.outputs.name }}
+        context: .
+        file: ${{ inputs.dockerfile }}
+        platforms: ${{ inputs.image_platforms }}
+        push: ${{ inputs.registry_push }}
+        tags: ${{ steps.docker_meta.outputs.tags }}
+        labels: ${{ steps.docker_meta.outputs.labels }}
+        provenance: false
