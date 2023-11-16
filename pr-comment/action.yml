@@ -50,12 +50,12 @@ runs:
       run: |
         comment_body_file=$(mktemp --tmpdir="$RUNNER_TEMP" "pr-comment-XXXXXXXX")
         echo "comment_body_file=$comment_body_file" >> "$GITHUB_OUTPUT"
-        if [[ -n "${{ inputs.body_path }}" ]]; then
-          cat "${{ inputs.body_path }}" >> "$comment_body_file"
-        else
-          echo "${{ inputs.body }}" >> "$comment_body_file"
-        fi
         {
+          if [[ -n "${{ inputs.body_path }}" ]]; then
+            cat "${{ inputs.body_path }}"
+          else
+            printf '%s' "${{ inputs.body }}"
+          fi
           printf '\n%s\n' "<!-- ${{ inputs.search_term }} -->"
         } >> $comment_body_file
     - name: Write Comment
