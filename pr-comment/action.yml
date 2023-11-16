@@ -31,40 +31,55 @@ inputs:
 outputs:
   comment_id:
     description: The ID of the comment that was created or updated.
-    value: ${{ steps.comment.outputs.comment-id || steps.search.outputs.comment-id }}
+    value: ${{ steps.create_comment.outputs.comment-id || steps.search.outputs.comment-id }}
 
 runs:
   using: composite
   steps:
     - name: Search existing
       id: search
-      uses: peter-evans/find-comment@v2.3.0
+      uses: peter-evans/find-comment@v2.4.0
       with:
         issue-number: ${{ inputs.issue_number || github.event.issue.number }}
         body-includes: ${{ inputs.search_term }}
         token: ${{ inputs.token }}
-        repository: ${{ inputs.repository}}
+        repository: ${{ inputs.repository }}
+        direction: first
+        nth: 0
     - name: generate comment body
       id: body
       shell: bash
       run: |
+        echo "::notice:: found ${{ steps.search.outputs.comment-id }} on issue ${{ inputs.issue_number || github.event.issue.number }}"
         comment_body_file=$(mktemp --tmpdir="$RUNNER_TEMP" "pr-comment-XXXXXXXX")
         echo "comment_body_file=$comment_body_file" >> "$GITHUB_OUTPUT"
-        if [[ -n "${{ inputs.body_path }}" ]]; then
-          cat "${{ inputs.body_path }}" >> "$comment_body_file"
-        else
-          echo "${{ inputs.body }}" >> "$comment_body_file"
-        fi
         {
+          if [[ -n "${{ inputs.body_path }}" ]]; then
+            cat "${{ inputs.body_path }}"
+          else
+            printf '%s' "${{ inputs.body }}"
+          fi
           printf '\n%s\n' "<!-- ${{ inputs.search_term }} -->"
-        } >> $comment_body_file
-    - name: Write Comment
-      id: comment
-      uses: peter-evans/create-or-update-comment@v3.0.2
+        } >> "$comment_body_file"
+    - name: Update Comment
+      id: update_comment
+      uses: peter-evans/create-or-update-comment@v3.1.0
+      if: |
+        steps.search.outputs.comment-id != ''
+      with:
+        token: ${{ inputs.token }}
+        repository: ${{ inputs.repository}}
+        comment-id: ${{ steps.search.outputs.comment-id }}
+        body-path: ${{ steps.body.outputs.comment_body_file }}
+        edit-mode: ${{ inputs.edit_mode }}
+    - name: Create Comment
+      id: create_comment
+      uses: peter-evans/create-or-update-comment@v3.1.0
+      if: |
+        steps.search.outputs.comment-id == ''
       with:
         token: ${{ inputs.token }}
         repository: ${{ inputs.repository}}
         issue-number: ${{ inputs.issue_number }}
-        comment-id: ${{ steps.search.outputs.comment-id }}}
         body-path: ${{ steps.body.outputs.comment_body_file }}
         edit-mode: ${{ inputs.edit_mode }}
