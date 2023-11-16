@@ -1,10 +1,10 @@
-name: test-pr-comment
+name: test-commenter
 
 on:
   push:
     paths:
-      - "pr-comment/**"
-      - ".github/workflows/test-pr-comment.yml"
+      - "pr-or-issue-comment/**"
+      - ".github/workflows/test-issue-comment.yml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,22 +25,22 @@ jobs:
       - name: generate comment
         id: generate
         run: |
-          echo "comment=Triggered on $(date -u) [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> "$GITHUB_OUTPUT"
+          echo "comment=$(date -u +"%Y-%m-%d %H:%M:%S") via [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> "$GITHUB_OUTPUT"
       - name: comment
         id: comment_default_search
-        uses: ./pr-comment
+        uses: ./pr-or-issue-comment
         with:
-          issue_number: 6
+          issue_number: 8
           body: |
-            comment_default_search - ${{ steps.generate.outputs.comment }}
+            comment_default_search :alembic: - ${{ steps.generate.outputs.comment }}
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: comment
         id: comment_search
-        uses: ./pr-comment
+        uses: ./pr-or-issue-comment
         with:
-          issue_number: 6
+          issue_number: 8
           body: |
-            comment_search -  ${{ steps.generate.outputs.comment }}
+            comment_search :alembic: + :mag: -  ${{ steps.generate.outputs.comment }}
           token: ${{ secrets.GITHUB_TOKEN }}
           search_term: "test-comment-with-search-term"
       - name: assert output
