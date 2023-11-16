@@ -1,5 +1,5 @@
-name: PR Commenter
-description: Creates or Updates a comment on a pull request.
+name: Comment on a PR or issue
+description: Creates or Updates a comment on a pull request or issue
 inputs:
   body:
     description: The contents of the comment
