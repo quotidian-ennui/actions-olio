@@ -7,6 +7,7 @@ OS_NAME:=`uname -o | tr '[:upper:]' '[:lower:]'`
   just --list --list-prefix "  "
 
 # pin github action to versions to hash (just pin repo-dispatch/action.yml)
+[no-cd]
 pin *args: check_npm_env
   #!/usr/bin/env bash
   set -eo pipefail

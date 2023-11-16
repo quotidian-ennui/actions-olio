@@ -30,7 +30,7 @@ runs:
   steps:
     - name: Dispatch Event
       id: dispatch
-      uses: peter-evans/repository-dispatch@v2.1.2
+      uses: peter-evans/repository-dispatch@bf47d102fdb849e755b0b0023ea3e81a44b6f570 # v2.1.2
       with:
         event-type: ${{ inputs.event_type }}
         client-payload: |-
