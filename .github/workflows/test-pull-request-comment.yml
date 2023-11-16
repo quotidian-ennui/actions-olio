@@ -5,12 +5,6 @@ on:
     paths:
       - "pr-comment/**"
       - ".github/workflows/test-pr-comment.yml"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "pr-comment/**"
-      - ".github/workflows/test-pr-comment.yml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
