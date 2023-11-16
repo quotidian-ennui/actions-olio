@@ -1,0 +1,62 @@
+name: test-pr-comment
+
+on:
+  push:
+    paths:
+      - "pr-comment/**"
+      - ".github/workflows/test-pr-comment.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "pr-comment/**"
+      - ".github/workflows/test-pr-comment.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  test-comment:
+    name: test-comment
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: generate comment
+        id: generate
+        run: |
+          echo "comment=Triggered on $(date -u) [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> "$GITHUB_OUTPUT"
+      - name: comment
+        id: comment_default_search
+        uses: ./pr-comment
+        with:
+          issue_number: 6
+          body: |
+            comment_default_search - ${{ steps.generate.outputs.comment }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: comment
+        id: comment_search
+        uses: ./pr-comment
+        with:
+          issue_number: 6
+          body: |
+            comment_search -  ${{ steps.generate.outputs.comment }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          search_term: "test-comment-with-search-term"
+      - name: assert output
+        id: assert
+        run: |
+          if [[ -z "${{ steps.comment_default_search.outputs.comment-id }}" ]]; then
+            echo "::error::comment-id not set by comment_default_search"
+            exit 1
+          fi
+          if [[ -z "${{ steps.comment_search.outputs.comment-id }}" ]]; then
+            echo "::error::comment-id not set by comment_search"
+            exit 1
+          fi
