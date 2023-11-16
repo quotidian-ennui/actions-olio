@@ -15,9 +15,9 @@ runs:
       id: depbot_archive
       shell: bash
       run: |
-        DEPBOT_ARCHIVE=$(mktemp -p "$RUNNER_TEMP" -d "depbot-XXXXXXXX")
-        cp .github/dependabot.yml "$DEPBOT_ARCHIVE"
-        echo "archive=$DEPBOT_ARCHIVE" >> "$GITHUB_OUTPUT"
+        DBOT_ORIGINAL=$(mktemp --tmpdir="$RUNNER_TEMP" "depbot-XXXXXXXX")
+        cat "${{ github.workspace }}/.github/dependabot.yml" > "$DBOT_ORIGINAL"
+        echo "dbot_yml_orig=$DBOT_ORIGINAL" >> "$GITHUB_OUTPUT"
     - name: Generate dependabot.yml
       uses: makeshift/generate-dependabot-glob-action@5cd45385ce6519f68d574aab9699832b3a5e5031 # v1.3.4
     - name: prettify
@@ -32,18 +32,12 @@ runs:
       #
       shell: bash
       run: |
-        WORKING_DIR="${{ steps.depbot_archive.outputs.archive }}"
-        CURRENT="${WORKING_DIR}/current"
-        CHANGED="${WORKING_DIR}/changed"
-        DIFF="${WORKING_DIR}/diff"
-        cd "$WORKING_DIR"
-        curl -fsSL  https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64.tar.gz | tar xz
-        ./yq_linux_amd64 eval '.updates[].directory' < ./dependabot.yml | sort -u > "${CURRENT}"
-        ./yq_linux_amd64 eval '.updates[].directory' < "${{ github.workspace }}/.github/dependabot.yml" | sort -u > "${CHANGED}"
-        comm -3 "${CURRENT}" "${CHANGED}" > "${DIFF}"
-        FIRST_CHANGE=$(basename "$(head -n 1 "${DIFF}" | sed -e 's/^[[:blank:]]*//' -e 's/[[:blank:]]*$//')")
-        echo "first_change=$FIRST_CHANGE" >> "$GITHUB_OUTPUT"
-        echo "commit_msg=feat(ci): update dependabot config ($FIRST_CHANGE)" >> "$GITHUB_OUTPUT"
+        ORIGINAL_CONFIG_DIRS=$(mktemp --tmpdir="$RUNNER_TEMP" "depbot-XXXXXXXX")
+        CHANGED_CONFIG_DIRS=$(mktemp --tmpdir="$RUNNER_TEMP" "depbot-XXXXXXXX")
+        yq eval '.updates[].directory' < "${{ steps.depbot_archive.outputs.dbot_yml_orig }}" | sort -u > "${ORIGINAL_CONFIG_DIRS}"
+        yq eval '.updates[].directory' < "${{ github.workspace }}/.github/dependabot.yml" | sort -u > "${CHANGED_CONFIG_DIRS}"
+        first_diff=$(basename "$(comm -3 "${ORIGINAL_CONFIG_DIRS}" "${CHANGED_CONFIG_DIRS}" | head -n 1 | sed -e 's/^[[:blank:]]*//' -e 's/[[:blank:]]*$//')")
+        echo "commit_msg=feat(ci): update dependabot config ($first_diff)" >> "$GITHUB_OUTPUT"
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # v5.0.2
       with:
