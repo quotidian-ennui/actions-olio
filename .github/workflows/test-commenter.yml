@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - "pr-or-issue-comment/**"
-      - ".github/workflows/test-issue-comment.yml"
+      - ".github/workflows/test-commenter.yml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,6 +19,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write
     steps:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
