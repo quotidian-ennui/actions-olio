@@ -5,6 +5,10 @@ inputs:
     description: Whether to push to the registry
     required: false
     default: "false"
+  load_locally:
+    description: Whether to load the image locally if you want to use it in a later step
+    required: false
+    default: "false"
   dockerfile:
     description: Path to the dockerfile
     required: true
@@ -86,7 +90,7 @@ runs:
         file: ${{ inputs.dockerfile }}
         platforms: ${{ inputs.image_platforms }}
         push: ${{ inputs.registry_push }}
-        load: ${{ inputs.registry_push == 'false' }}
+        load: ${{ inputs.load_locally }}
         tags: ${{ steps.docker_meta.outputs.tags }}
         labels: ${{ steps.docker_meta.outputs.labels }}
         provenance: false
