@@ -1,0 +1,84 @@
+name: Comment on a PR or issue
+description: Creates or Updates a comment on a pull request or issue
+inputs:
+  body:
+    description: The contents of the comment
+    required: false
+  body_path:
+    description: A file location that contains the body to be used as the comment
+    required: false
+  issue_number:
+    description: The issue number to use, if not set will try and use value in github context.
+    required: false
+  search_term:
+    description: |
+      The search term that allows us to update an existing comment; if not found then a new comment is created
+    required: false
+    default: "pr-comment: workflow=${{ github.workflow }} job=${{ github.job }}"
+  repository:
+    description: Override the repository (your token needs to allow it) default is 'github.repository'
+    required: false
+    default: ${{ github.repository }}
+  token:
+    description: The GITHUB token to use default is github.token
+    default: ${{ github.token }}
+  edit_mode:
+    description: |
+      The edit mode to use when updating an existing comment. Valid values are 'replace' and 'append'.
+      If not set, the default is 'replace'.
+    required: false
+    default: "replace"
+outputs:
+  comment_id:
+    description: The ID of the comment that was created or updated.
+    value: ${{ steps.create_comment.outputs.comment-id || steps.search.outputs.comment-id }}
+
+runs:
+  using: composite
+  steps:
+    - name: Search existing
+      id: search
+      uses: peter-evans/find-comment@a54c31d7fa095754bfef525c0c8e5e5674c4b4b1 # v2.4.0
+      with:
+        issue-number: ${{ inputs.issue_number || github.event.issue.number }}
+        body-includes: ${{ inputs.search_term }}
+        token: ${{ inputs.token }}
+        repository: ${{ inputs.repository }}
+        direction: first
+        nth: 0
+    - name: generate comment body
+      id: body
+      shell: bash
+      run: |
+        comment_body_file=$(mktemp --tmpdir="$RUNNER_TEMP" "pr-comment-XXXXXXXX")
+        echo "comment_body_file=$comment_body_file" >> "$GITHUB_OUTPUT"
+        {
+          if [[ -n "${{ inputs.body_path }}" ]]; then
+            cat "${{ inputs.body_path }}"
+          else
+            printf '%s' "${{ inputs.body }}"
+          fi
+          printf '\n%s\n' "<!-- ${{ inputs.search_term }} -->"
+        } >> "$comment_body_file"
+    - name: Update Comment
+      id: update_comment
+      uses: peter-evans/create-or-update-comment@23ff15729ef2fc348714a3bb66d2f655ca9066f2 # v3.1.0
+      if: |
+        steps.search.outputs.comment-id != ''
+      with:
+        token: ${{ inputs.token }}
+        repository: ${{ inputs.repository}}
+        comment-id: ${{ steps.search.outputs.comment-id }}
+        body-path: ${{ steps.body.outputs.comment_body_file }}
+        edit-mode: ${{ inputs.edit_mode }}
+    - name: Create Comment
+      id: create_comment
+      uses: peter-evans/create-or-update-comment@c6c9a1a66007646a28c153e2a8580a5bad27bcfa # v3.0.2
+      if: |
+        steps.search.outputs.comment-id == ''
+      with:
+        token: ${{ inputs.token }}
+        repository: ${{ inputs.repository}}
+        issue-number: ${{ inputs.issue_number }}
+        body-path: ${{ steps.body.outputs.comment_body_file }}
+        edit-mode: ${{ inputs.edit_mode }}
