@@ -28,6 +28,14 @@ updates:
     commit-message:
       prefix: "deps: "
   - package-ecosystem: github-actions
+    directory: pr-or-issue-comment
+    schedule:
+      interval: weekly
+    allow:
+      - dependency-type: all
+    commit-message:
+      prefix: "deps: "
+  - package-ecosystem: github-actions
     directory: repo-dispatch
     schedule:
       interval: weekly
