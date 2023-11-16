@@ -38,16 +38,19 @@ runs:
   steps:
     - name: Search existing
       id: search
-      uses: peter-evans/find-comment@v2.3.0
+      uses: peter-evans/find-comment@v2.4.0
       with:
         issue-number: ${{ inputs.issue_number || github.event.issue.number }}
         body-includes: ${{ inputs.search_term }}
         token: ${{ inputs.token }}
-        repository: ${{ inputs.repository}}
+        repository: ${{ inputs.repository }}
+        direction: first
+        nth: 0
     - name: generate comment body
       id: body
       shell: bash
       run: |
+        echo "::notice:: found ${{ steps.search.outputs.comment-id }} on issue ${{ inputs.issue_number || github.event.issue.number }}"
         comment_body_file=$(mktemp --tmpdir="$RUNNER_TEMP" "pr-comment-XXXXXXXX")
         echo "comment_body_file=$comment_body_file" >> "$GITHUB_OUTPUT"
         {
@@ -57,10 +60,10 @@ runs:
             printf '%s' "${{ inputs.body }}"
           fi
           printf '\n%s\n' "<!-- ${{ inputs.search_term }} -->"
-        } >> $comment_body_file
+        } >> "$comment_body_file"
     - name: Write Comment
       id: comment
-      uses: peter-evans/create-or-update-comment@v3.0.2
+      uses: peter-evans/create-or-update-comment@v3.1.0
       with:
         token: ${{ inputs.token }}
         repository: ${{ inputs.repository}}
