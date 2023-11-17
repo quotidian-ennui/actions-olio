@@ -26,10 +26,6 @@ runs:
         args: --write ./.github/dependabot.yml
     - name: Dependabot Change Highlights
       id: highlight
-      # Get the first change we find so that we can use it in the title of the PR
-      # Doesn't matter if it's a removal or an addition the PR title gives us a better
-      # conventional commit
-      #
       shell: bash
       run: |
         ORIGINAL_CONFIG_DIRS=$(mktemp --tmpdir="$RUNNER_TEMP" "depbot-XXXXXXXX")
