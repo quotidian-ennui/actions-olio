@@ -8,7 +8,7 @@ In this specific repository; how do you enable required checks (via branch prote
 
 ## Usage
 
-- Requires you to have at least `statuses:write`, `pull_requests:write` and probably `contents:write` permissions attached to the token.
+- Requires you to have at least `statuses:write`, `issues:write`, `pull_requests:write` and probably `contents:write` permissions attached to the token.
 
 ```action
 - name: Pending Status
@@ -38,12 +38,15 @@ In this specific repository; how do you enable required checks (via branch prote
 
 ## Notes
 
+- Of course it's up to you to assign pretty colours to your labels.
 - There is a potential timing issue if you have multiple triggered workflows that all use the same _context_ for the commit status. Not entirely sure what happens vis-a-vis branch protection rules there.
 - In the example above I'm passing in the 'outcome' from the tests job which might actually be 'success | failure | skipped | cancelled'. Success and failure are self-evidently supported; skipped & cancelled are taken to be 'error'.
+- There's use of `actions/github-script`; I was going to use `gh` but I had permissions issues and though I don't enjoy doing javascript, I do know enough to get into trouble. In this instance I would have much preferred to use `bash` everywhere.
 
 ## Dependencies
 
 It's a composite action that wraps the following actions:
 
-- peter-evans/find-comment
-- peter-evans/create-or-update-comment
+- jwalton/gh-find-current-pr
+- actions/github-script
+- octodemo-resources/github-commit-status (but this could easily be actions/github-script again).

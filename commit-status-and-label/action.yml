@@ -27,6 +27,17 @@ inputs:
 runs:
   using: composite
   steps:
+
+    - name: Find associated PR
+      uses: jwalton/gh-find-current-pr@v1.3.2
+      id: findpr
+      if: |
+        inputs.pull_request == ''
+      with:
+        github-token: ${{ inputs.token }}
+        state: open
+        sha: ${{ inputs.sha }}
+
     - name: bootstrap
       id: bootstrap
       shell: bash
@@ -46,25 +57,18 @@ runs:
         # shellcheck disable=SC2129
         echo "state=$state" >> "$GITHUB_OUTPUT"
         echo "label=${{ inputs.label_prefix }}_$state" >> "$GITHUB_OUTPUT"
+        echo "pr_number=${{ steps.findpr.outputs.pr || inputs.pull_request }}" >> "$GITHUB_OUTPUT"
         echo "short_desc=${{ inputs.context }} $state" >> "$GITHUB_OUTPUT"
         echo "status_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> "$GITHUB_OUTPUT"
 
-    - name: Find associated PR
-      uses: jwalton/gh-find-current-pr@v1.3.2
-      id: findpr
-      if: |
-        inputs.pull_request == ''
-      with:
-        github-token: ${{ inputs.token }}
-        state: open
-        sha: ${{ inputs.sha }}
-
     - name: Update PR Label
       uses: actions/github-script@v7.0.0
+      if: |
+        steps.bootstrap.outputs.pr_number != ''
       with:
         script: |
           response = await github.rest.issues.listLabelsOnIssue({
-              issue_number: ${{ steps.findpr.outputs.pr || inputs.pull_request }},
+              issue_number: ${{ steps.bootstrap.outputs.pr_number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
@@ -74,7 +78,7 @@ runs:
           );
           newLabels.push('${{ steps.bootstrap.outputs.label }}');
           await github.rest.issues.setLabels({
-            issue_number: ${{ steps.findpr.outputs.pr || inputs.pull_request }},
+            issue_number: ${{ steps.bootstrap.outputs.pr_number }},
             owner: context.repo.owner,
             repo: context.repo.repo,
             labels: newLabels
