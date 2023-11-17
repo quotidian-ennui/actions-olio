@@ -40,6 +40,7 @@ jobs:
           sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
           state: "pending"
           context: "test-commit-status"
+          label_prefix: "unit_tests"
       - name: Check Status
         id: check
         uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
@@ -59,9 +60,11 @@ jobs:
             }
       - name: Update Status
         id: update_commit_status
+        if: success() || failure()
         uses: ./commit-status-and-label
         with:
           token: ${{ github.token }}
           sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
-          state: "success"
+          state: ${{ steps.check.outcome }}
           context: "test-commit-status"
+          label_prefix: "unit_tests"
