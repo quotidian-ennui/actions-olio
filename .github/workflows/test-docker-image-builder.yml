@@ -25,7 +25,10 @@ jobs:
     name: test-docker-image-builder
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
+      pull-requests: write
+      issues: write
+      statuses: write
     steps:
       - name: step-security/harden-runner
         uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
@@ -33,6 +36,13 @@ jobs:
           egress-policy: audit
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Pending Status
+        id: pending
+        uses: ./commit-status-and-label
+        with:
+          token: ${{ github.token }}
+          sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          state: "pending"
       - name: docker-image-builder
         id: docker
         uses: ./docker-image-builder
@@ -79,9 +89,17 @@ jobs:
         # Our work here is done, so cleanup
         id: cleanup
         if: success() || failure()
+        continue-on-error: true
         env:
           DOCKER_TAGS: ${{ steps.docker.outputs.image_tags }}
         run: |
           for image in "$DOCKER_TAGS"; do
             docker rmi "$image"
           done
+      - name: Update Status
+        id: update
+        uses: ./commit-status-and-label
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          state: "${{ steps.docker_run.outcome }}"
