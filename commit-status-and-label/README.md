@@ -8,7 +8,8 @@ In this specific repository; how do you enable required checks (via branch prote
 
 ## Usage
 
-- Requires you to have at least `statuses:write`, `issues:write`, `pull_requests:write` and probably `contents:write` permissions attached to the token.
+- Requires you to have at least `statuses:write`, `pull_requests:write` and perhaps `issues:write`, + `contents:write` permissions attached to the token.
+
 
 ```action
 - name: Pending Status
@@ -19,7 +20,7 @@ In this specific repository; how do you enable required checks (via branch prote
     sha: ${{ github.event.pull_request.head.sha }}
     state: "pending"
     # context: "Check"
-    # prefix: "check"
+    # prefix: "check_"
 - name: Do the tests
   id: tests
   run: |
@@ -33,14 +34,16 @@ In this specific repository; how do you enable required checks (via branch prote
     sha: ${{ github.event.pull_request.head.sha }}
     state: ${{ steps.tests.outcome }}
     # context: "Check"
-    # prefix: "check"
+    # prefix: "check_"
 ```
 
 ## Notes
 
 - Of course it's up to you to assign pretty colours to your labels.
+- According to the documentation you may only add 1k states to a given commit sha. Bear that in mind if you're basically adding a commit status to the same SHA over and over.
 - There is a potential timing issue if you have multiple triggered workflows that all use the same _context_ for the commit status. Not entirely sure what happens vis-a-vis branch protection rules there.
-- In the example above I'm passing in the 'outcome' from the tests job which might actually be 'success | failure | skipped | cancelled'. Success and failure are self-evidently supported; skipped & cancelled are taken to be 'error'.
+  - This will happen in this project because of dependabot updating _all of the test-*.yml_ with an update to `actions/checkout` which will then trigger 3x builds; they'll all use the same context `Check` for the given commit SHA, so we'll see what happens.
+- In the example above I'm passing in the 'outcome' from the tests job which is actually 'success | failure | skipped | cancelled'. Success and failure are valid commit statuses; skipped & cancelled are mapped to be 'error'.
 - There's use of `actions/github-script`; I was going to use `gh` but I had permissions issues and though I don't enjoy doing javascript, I do know enough to get into trouble. In this instance I would have much preferred to use `bash` everywhere.
 
 ## Dependencies
@@ -49,4 +52,4 @@ It's a composite action that wraps the following actions:
 
 - jwalton/gh-find-current-pr
 - actions/github-script
-- octodemo-resources/github-commit-status (but this could easily be actions/github-script again).
+- (octodemo-resources/github-commit-status) - I'm unsure as to whether to trust something called octodemo-resources so it's a github-script.

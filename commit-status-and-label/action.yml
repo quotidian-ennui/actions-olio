@@ -3,26 +3,26 @@ description: |
   Add a commit status to a SHA and label the associated open PR (if there is one) accordingly
 inputs:
   sha:
-    description: 'The commit SHA'
+    description: "The commit SHA"
     required: true
   state:
-    description: 'The state for the commit status (error | pending | failure | success)'
+    description: "The state for the commit status (error | pending | failure | success)"
     required: true
   pull_request:
     description: "The pull request number, if not specified we'll try to find it based on the commit SHA"
     required: false
   token:
-    description: 'The GitHub token to use for authentication.'
+    description: "The GitHub token to use for authentication."
     required: false
     default: '${{ github.token }}'
   context:
-    description: 'The context for the commit status (default: Check)'
+    description: "The context for the commit status (default: Check)"
     required: false
     default: 'Check'
   label_prefix:
-    description: 'The prefix for the label (default: check)'
+    description: "The prefix for the label (adds a label if set, default is 'check_')"
     required: false
-    default: 'check'
+    default: 'check_'
 
 runs:
   using: composite
@@ -56,7 +56,7 @@ runs:
         state=$(sense_check "${{ inputs.state }}")
         # shellcheck disable=SC2129
         echo "state=$state" >> "$GITHUB_OUTPUT"
-        echo "label=${{ inputs.label_prefix }}_$state" >> "$GITHUB_OUTPUT"
+        echo "label=${{ inputs.label_prefix }}$state" >> "$GITHUB_OUTPUT"
         echo "pr_number=${{ steps.findpr.outputs.pr || inputs.pull_request }}" >> "$GITHUB_OUTPUT"
         echo "short_desc=${{ inputs.context }} $state" >> "$GITHUB_OUTPUT"
         echo "status_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> "$GITHUB_OUTPUT"
@@ -64,7 +64,8 @@ runs:
     - name: Update PR Label
       uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
       if: |
-        steps.bootstrap.outputs.pr_number != ''
+        steps.bootstrap.outputs.pr_number != '' &&
+        inputs.label_prefix != ''
       with:
         script: |
           response = await github.rest.issues.listLabelsOnIssue({
@@ -74,7 +75,7 @@ runs:
             });
           const existingLabels = response.data.map((label) => label.name)
           const newLabels = existingLabels.filter(
-            (l) => !l.startsWith('${{ inputs.label_prefix }}_')
+            (l) => !l.startsWith('${{ inputs.label_prefix }}')
           );
           newLabels.push('${{ steps.bootstrap.outputs.label }}');
           await github.rest.issues.setLabels({
@@ -84,28 +85,28 @@ runs:
             labels: newLabels
           })
 
-    - name: Create Commit Status
-      id: commit_status
-      uses: octodemo-resources/github-commit-status@fa054ae3db24c384f8806bd990cc28ff1606fd5b # v1.0.0
+    - name: Workflow Failure
+      uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
       with:
-        repository: ${{ github.repository }}
-        sha: ${{ inputs.sha }}
-        context: ${{ inputs.context }}
-        state: ${{ steps.bootstrap.outputs.state }}
-        description: "${{ steps.bootstrap.outputs.short_desc }}"
-        target_url: "${{ steps.bootstrap.outputs.status_url }}"
-        token: ${{ inputs.token }}
-    # Could use github-script
-    # - name: Workflow Failure
-    #   uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+        script: |
+          github.rest.repos.createCommitStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            sha: "${{ inputs.sha }}",
+            target_url: "${{ steps.bootstrap.outputs.status_url }}",
+            state: "${{ steps.bootstrap.outputs.state }}",
+            description: "${{ steps.bootstrap.outputs.short_desc }}",
+            context: "${{ inputs.context }}"
+          })
+    # does relying on something called octodemo-resources make sense?
+    # - name: Create Commit Status
+    #   id: commit_status
+    #   uses: octodemo-resources/github-commit-status@fa054ae3db24c384f8806bd990cc28ff1606fd5b # v1.0.0
     #   with:
-    #     script: |
-    #       github.rest.repos.createCommitStatus({
-    #         owner: context.repo.owner,
-    #         repo: context.repo.repo,
-    #         sha: "${{ inputs.sha }}",
-    #         target_url: "${{ steps.bootstrap.outputs.status_url }}",
-    #         state: "${{ steps.bootstrap.outputs.state }}",
-    #         description: "${{ steps.bootstrap.outputs.short_desc }}",
-    #         context: "${{ inputs.context }}"
-    #       })
+    #     repository: ${{ github.repository }}
+    #     sha: ${{ inputs.sha }}
+    #     context: ${{ inputs.context }}
+    #     state: ${{ steps.bootstrap.outputs.state }}
+    #     description: "${{ steps.bootstrap.outputs.short_desc }}"
+    #     target_url: "${{ steps.bootstrap.outputs.status_url }}"
+    #     token: ${{ inputs.token }}
