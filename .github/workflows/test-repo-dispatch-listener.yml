@@ -1,0 +1,46 @@
+name: test-repo-dispatch-listener
+
+on:
+  repository_dispatch:
+    types:
+      - test-dispatch
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  assert:
+    name: "Assert Dispatch Event"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      statuses: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: check client_payload
+        id: check_payload
+        run: |
+          if [[ -z "${{ github.event.client_payload.base.sha}}" ]]; then
+            echo ::error::no sha in client_payload
+            exit 1
+          fi
+          if [[ "${{ github.event.client_payload.detail.jobname }}" != "test-dispatch" ]]; then
+            echo ::error::jobname not set to test-dispatch in client_payload
+            exit 1
+          fi
+      - name: Check Status
+        id: check_outcome
+        if: |
+          (success() || failure()) &&
+          github.event.client_payload.base.event_trigger == 'pull_request'
+        uses: ./commit-status-and-label
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sha:  ${{ github.event.client_payload.base.sha }}
+          state: "${{ steps.check_payload.outcome }}"

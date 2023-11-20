@@ -5,12 +5,14 @@ on:
     paths:
       - "repo-dispatch/**"
       - ".github/workflows/test-repo-dispatch.yml"
+      - ".github/workflows/test-repo-dispatch-listener.yml"
   pull_request:
     branches:
       - main
     paths:
       - "repo-dispatch/**"
       - ".github/workflows/test-repo-dispatch.yml"
+      - ".github/workflows/test-repo-dispatch-listener.yml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -24,19 +26,28 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
+      issues: write
+      statuses: write
     steps:
-      - name: step-security/harden-runner
-        uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
-        with:
-          egress-policy: audit
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Update Status
+        id: check_pending
+        uses: ./commit-status-and-label
+        if: github.event_name == 'pull_request'
+        with:
+          token: ${{ github.token }}
+          sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          state: "pending"
       - name: dispatch
         id: dispatch
         uses: ./repo-dispatch
         with:
           event_type: test-dispatch
           token: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.head_ref || github.ref }}
           event_detail: |
             {
               "jobname": "test-dispatch"
