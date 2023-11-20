@@ -33,6 +33,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Update Status
+        id: check_pending
+        uses: ./commit-status-and-label
+        if: github.event_name == 'pull_request'
+        with:
+          token: ${{ github.token }}
+          sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          state: "pending"
+      - name: Update Status
         id: test_commit_status_update
         uses: ./commit-status-and-label
         with:
@@ -68,3 +76,13 @@ jobs:
           state: ${{ steps.check.outcome }}
           context: "test-commit-status"
           label_prefix: "commit_status_tests: "
+      - name: Check Status
+        id: check_outcome
+        uses: ./commit-status-and-label
+        if: |
+          (success() || failure()) &&
+          github.event_name == 'pull_request'
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          state: "${{ steps.check.outcome }}"
