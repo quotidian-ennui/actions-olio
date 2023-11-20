@@ -1,0 +1,70 @@
+name: test-commit-status
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "commit-status-and-label/**"
+      - ".github/workflows/test-commit-status.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "commit-status-and-label/**"
+      - ".github/workflows/test-commit-status.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  test-commit-status:
+    name: test-commit-status
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      statuses: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Update Status
+        id: test_commit_status_update
+        uses: ./commit-status-and-label
+        with:
+          token: ${{ github.token }}
+          sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          state: "pending"
+          context: "test-commit-status"
+          label_prefix: "commit_status_tests: "
+      - name: Check Status
+        id: check
+        uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+        with:
+          script: |
+            response = await github.request('GET /repos/{owner}/{repo}/commits/{ref}/status', {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: '${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}',
+              headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+              }
+            })
+            const status=response.data.statuses.filter((status) => status.context === 'test-commit-status' && status.state === 'pending');
+            if (status.length < 1) {
+              throw new Error('Expected at least one status to be pending');
+            }
+      - name: Update Status
+        id: update_commit_status
+        if: success() || failure()
+        uses: ./commit-status-and-label
+        with:
+          token: ${{ github.token }}
+          sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          state: ${{ steps.check.outcome }}
+          context: "test-commit-status"
+          label_prefix: "commit_status_tests: "
