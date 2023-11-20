@@ -2,6 +2,14 @@ name: test-commenter
 
 on:
   push:
+    branches:
+      - main
+    paths:
+      - "pr-or-issue-comment/**"
+      - ".github/workflows/test-commenter.yml"
+  pull_request:
+    branches:
+      - main
     paths:
       - "pr-or-issue-comment/**"
       - ".github/workflows/test-commenter.yml"
@@ -20,13 +28,22 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
+      statuses: write
     steps:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Update Status
+        id: check_pending
+        uses: ./commit-status-and-label
+        if: github.event_name == 'pull_request'
+        with:
+          token: ${{ github.token }}
+          sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          state: "pending"
       - name: generate comment
         id: generate
         run: |
-          echo "comment=$(date -u +"%Y-%m-%d %H:%M:%S") via [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> "$GITHUB_OUTPUT"
+          echo "comment=${{ github.event_name }}(${{ github.ref }}) on $(date -u +"%Y-%m-%d %H:%M:%S") via [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> "$GITHUB_OUTPUT"
       - name: comment
         id: comment_default_search
         uses: ./pr-or-issue-comment
@@ -55,3 +72,13 @@ jobs:
             echo "::error::comment-id not set by comment_search"
             exit 1
           fi
+      - name: Check Status
+        id: check_outcome
+        uses: ./commit-status-and-label
+        if: |
+          (success() || failure()) &&
+          github.event_name == 'pull_request'
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          state: "${{ steps.assert.outcome }}"

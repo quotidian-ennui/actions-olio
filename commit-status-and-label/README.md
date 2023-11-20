@@ -41,8 +41,8 @@ In this specific repository; how do you enable required checks (via branch prote
 
 - Of course it's up to you to assign pretty colours to your labels.
 - According to the documentation you may only add 1k states to a given commit sha. Bear that in mind if you're basically adding a commit status to the same SHA over and over.
-- There is a potential timing issue if you have multiple triggered workflows that all use the same _context_ for the commit status. Not entirely sure what happens vis-a-vis branch protection rules there.
-  - This will happen in this project because of dependabot updating _all of the test-*.yml_ with an update to `actions/checkout` which will then trigger 3x builds; they'll all use the same context `Check` for the given commit SHA, so we'll see what happens.
+- There is a timing issue if you have multiple triggered workflows that all use the same _context_ for the commit status. The context will transition to _success_ before all the actual checks have executed. You don't want to have automerge enabled if that's the case.
+  - It happens in this project; if dependabot 'updates `actions/checkout`' then the 3 test- workflows that trigger on a PR will all update the same 'check' context. 'test-docker-image.yml' will always take the longest but the commit status has transitioned to `success` before it finishes.
 - In the example above I'm passing in the 'outcome' from the tests job which is actually 'success | failure | skipped | cancelled'. Success and failure are valid commit statuses; skipped & cancelled are mapped to be 'error'.
 - There's use of `actions/github-script`; I was going to use `gh` but I had permissions issues and though I don't enjoy doing javascript, I do know enough to get into trouble. In this instance I would have much preferred to use `bash` everywhere.
 
