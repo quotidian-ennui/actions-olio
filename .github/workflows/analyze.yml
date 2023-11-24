@@ -20,6 +20,7 @@ jobs:
     outputs:
       actions: ${{ steps.changes.outputs.actions_any_changed }}
       workflows: ${{ steps.changes.outputs.workflows_any_changed }}
+      shellscripts: ${{ steps.changes.outputs.shellscripts_any_changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -36,6 +37,8 @@ jobs:
               - "**/action.yml"
             workflows:
               - ".github/workflows/**"
+            shellscripts:
+              - "**/*.sh"
 
   commits:
     name: Conventional Commits
@@ -75,3 +78,24 @@ jobs:
           fail_on_error: true
           tool_name: actionlint
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  shellcheck:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    needs:
+      - changes
+    permissions:
+      contents: write
+      pull-requests: write
+    if: |
+      github.event_name == 'pull_request' &&  needs.changes.outputs.shellscripts == 'true'
+    steps:
+      - name: checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: shellcheck
+        uses: reviewdog/action-shellcheck@96fa305c16b0f9cc9b093af22dcd09de1c8f1c2d # v1.19.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          pattern: |
+            *.sh
