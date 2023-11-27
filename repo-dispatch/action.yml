@@ -19,10 +19,12 @@ inputs:
   ref:
     description: Override github.event.client_payload.base.ref with your own value
     required: false
+  actor:
+    description: Override github.event.client_payload.base.actor with your own value
+    required: false
+    default: ${{ github.actor }}
   event_detail:
-    description: |
-      Add data as github.event.client_payload.detail
-      event_override and this should be considered mutually exclusive.
+    description: Add data as github.event.client_payload.detail
     required: false
 
 runs:
@@ -40,7 +42,7 @@ runs:
               "event_trigger" : "${{ github.event_name }}",
               "workflow" : "${{ github.workflow }}",
               "workflow_run_url" : "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-              "actor" : "${{ github.actor }}",
+              "actor" : "${{ inputs.actor }}",
               "ref" : "${{ inputs.ref || github.head_ref || github.ref }}",
               "sha": "${{ inputs.sha || github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}"
             },
