@@ -61,6 +61,7 @@ commit_parsers = [
     { message = "^build\\(deps.*\\)", group = "<!-- 99 -->:pushpin: Dependency Management"},
     { message = "^build\\(dev-deps.*\\)", group = "<!-- 99 -->:pushpin: Dependency Management"},
     { message = "^(ci|build)", group = "<!-- 07 -->:construction_worker: Build Environment"},
+    { message = "^deps\\(ci|build\\)", group = "<!-- 07 -->:construction_worker: Build Environment"},
     { message = "^deps", group = "<!-- 99 -->:pushpin: Dependency Management"},
     { message = "^chore\\(deps\\)", group = "<!-- 99 -->:pushpin: Dependency Management"},
     { message = "^chore\\(release\\):", skip = true},
