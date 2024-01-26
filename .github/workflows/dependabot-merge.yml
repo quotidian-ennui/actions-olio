@@ -100,7 +100,7 @@ jobs:
             |is_dependabot| ${{ needs.bootstrap.outputs.is_dependabot_pr }} |
             |action changes| ${{ needs.bootstrap.outputs.actions_modified }} |
           token: ${{ secrets.GITHUB_TOKEN }}
-          search_term: "dependabot-gradle-automerge-status"
+          search_term: "dependabot-action-automerge-status"
       - name: Dependabot Merge
         continue-on-error: true
         if: |
@@ -110,4 +110,4 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           gh pr review --approve "${{ github.event.client_payload.detail.pull_request }}"
-          gh pr merge -r --auto "${{ github.event.client_payload.detail.pull_request }}"
+          gh pr merge -r "${{ github.event.client_payload.detail.pull_request }}"
