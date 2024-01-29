@@ -1,0 +1,41 @@
+name: updatecli
+description: Runs updatecli with a set of defaults.
+inputs:
+  version:
+    description: The version of updatecli to use
+    required: false
+    default: v0.71.0
+  token:
+    description: The github token to use when committing changes
+    required: false
+    default: ${{ github.token }}
+  github_user:
+    description: The github user to use when committing changes
+    required: false
+    default: qe-repo-updater[bot]
+  github_email:
+    description: The github email to use when committing changes
+    required: false
+    default: 152897211+qe-repo-updater[bot]@users.noreply.github.com
+
+runs:
+  using: composite
+  steps:
+    - name: "Setup updatecli"
+      uses: updatecli/updatecli-action@ecfc21fd2d9e91be2af8b706ea10aea5154f6d5d # v2.54.0
+      with:
+        version: ${{ inputs.version }}
+    - name: "Run updatecli"
+      shell: bash
+      run: |
+        configs=$(ls -1 "./updatecli.d"/*.yml)
+        for conf in $configs; do
+          updatecli apply --config "$conf"
+        done
+      env:
+        UPDATECLI_GITHUB_USER: ${{ inputs.github_user }}
+        UPDATECLI_GITHUB_EMAIL: ${{ inputs.github_email }}
+        UPDATECLI_GITHUB_TOKEN: ${{ inputs.token }}
+        GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+        GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
+        GITHUB_TOKEN: ${{ inputs.token }}
