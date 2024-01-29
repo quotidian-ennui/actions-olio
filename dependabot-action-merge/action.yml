@@ -51,7 +51,7 @@ runs:
             - ".github/workflows/**"
     - name: Update PR with Automerge comment
       id: comment
-      uses: ./pr-or-issue-comment
+      uses: quotidian-ennui/actions-olio/pr-or-issue-comment@main
       if: |
         steps.bootstrap.outputs.is_pr == 'true'
       with:
