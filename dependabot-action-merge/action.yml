@@ -1,0 +1,81 @@
+name: dependabot-action-merge
+description: |
+  Merge PRs that modify actions from dependabot (up-to semver:minor).
+  Has an implicit relationship to repo-dispatch since it tries to use client_payload from
+  a repository dispatch event.
+inputs:
+  token:
+    description: The github token to use when committing changes
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare
+      id: bootstrap
+      shell: bash
+      run: |
+        function patch_or_minor() {
+          local update_type=${1/version-update:/}
+          case "$update_type" in
+          semver-patch|semver-minor) return 0;;
+          *) return 1;;
+          esac
+        }
+        if [[ "${{ github.event.client_payload.detail.pull_request }}" != "" ]]
+        then
+          echo "is_pr=true"  >> "$GITHUB_OUTPUT"
+        else
+          echo "is_pr=false"  >> "$GITHUB_OUTPUT"
+        fi
+        if [[ "${{ github.event.client_payload.detail.pull_request }}" != "" && "${{ github.event.client_payload.base.actor }}" == "dependabot[bot]" ]]
+        then
+          echo "is_dependabot_pr=true"  >> "$GITHUB_OUTPUT"
+        else
+          echo "is_dependabot_pr=false"  >> "$GITHUB_OUTPUT"
+        fi
+        # shellcheck disable=SC2091
+        if patch_or_minor "${{ github.event.client_payload.detail.dependabot_update_type }}"
+        then
+          echo "automerge=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "automerge=false" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Changes
+      id: changes
+      uses: tj-actions/changed-files@90a06d6ba9543371ab4df8eeca0be07ca6054959 # v42.0.2
+      with:
+        files_yaml: |
+          workflows:
+            - ".github/workflows/**"
+    - name: Update PR with Automerge comment
+      id: comment
+      uses: quotidian-ennui/actions-olio/pr-or-issue-comment@main
+      if: |
+        steps.bootstrap.outputs.is_pr == 'true'
+      with:
+        issue_number: ${{ github.event.client_payload.detail.pull_request }}
+        body: |
+          :dependabot: Attempt Merge: ${{ steps.bootstrap.outputs.automerge }}
+
+          | Decision Table | Value |
+          | ------ | ------ |
+          |Automerge allowed up to| semver-minor |
+          |Update Type| ${{ github.event.client_payload.detail.dependabot_update_type }} |
+          |is_dependabot| ${{ steps.bootstrap.outputs.is_dependabot_pr }} |
+          |action changes| ${{ steps.changes.outputs.workflows_any_changed }} |
+        token: ${{ inputs.token }}
+        search_term: "dependabot-action-automerge-status"
+    - name: Dependabot Merge
+      continue-on-error: true
+      if: |
+        startsWith(github.event.client_payload.base.ref, 'dependabot') &&
+        steps.bootstrap.outputs.is_dependabot_pr == 'true' &&
+        steps.bootstrap.outputs.automerge == 'true'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      run: |
+        gh pr review --approve "${{ github.event.client_payload.detail.pull_request }}"
+        gh pr merge -s "${{ github.event.client_payload.detail.pull_request }}"
