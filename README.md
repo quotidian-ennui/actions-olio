@@ -24,3 +24,5 @@ The source of the actions themselves are of course self-documenting :roll_eyes: 
 - [pr-or-issue-comment](./pr-or-issue-comment/README.md)
 - [commit-status-and-label](./commit-status-and-label/README.md)
 - [default-updatecli](./default-updatecli/README.md)
+- [pr-trigger](./pr-trigger/README.md)
+- [dependabot-action-merge](./dependabot-action-merge/README.md)
