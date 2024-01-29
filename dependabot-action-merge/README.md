@@ -11,7 +11,8 @@ If you have secrets, then you need to add all your secrets to the dependabot con
 
 - Requires you to have `contents:write` & `pull_requests:write` permissions attached to the token (depending on what you're doing).
 - If you are updating `./.github/workflows` then you probably need to have a github application.
-- There's an implicit relationship between this action and the `./repo-dispatch` action. The `./repo-dispatch` action will create a `client_payload` that will be used by this action to determine what to do.
+- There's an implicit relationship between this action and the `./pr-trigger` action since we're expecting that to feed this.
+
 ```action
 - name: Checkout
   uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
