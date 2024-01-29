@@ -20,6 +20,14 @@ updates:
     commit-message:
       prefix: "deps: "
   - package-ecosystem: github-actions
+    directory: default-updatecli
+    schedule:
+      interval: weekly
+    allow:
+      - dependency-type: all
+    commit-message:
+      prefix: "deps: "
+  - package-ecosystem: github-actions
     directory: docker-image-builder
     schedule:
       interval: weekly
