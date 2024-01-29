@@ -4,7 +4,7 @@ inputs:
   version:
     description: The version of updatecli to use
     required: false
-    default: v0.71.0
+    default: v0.72.0
   token:
     description: The github token to use when committing changes
     required: false
@@ -17,7 +17,6 @@ inputs:
     description: The github email to use when committing changes
     required: false
     default: 152897211+qe-repo-updater[bot]@users.noreply.github.com
-
 runs:
   using: composite
   steps:
