@@ -38,7 +38,7 @@ runs:
   steps:
     - name: Search existing
       id: search
-      uses: peter-evans/find-comment@a54c31d7fa095754bfef525c0c8e5e5674c4b4b1 # v2.4.0
+      uses: peter-evans/find-comment@d5fe37641ad8451bdd80312415672ba26c86575e # v3.0.0
       with:
         issue-number: ${{ inputs.issue_number || github.event.issue.number }}
         body-includes: ${{ inputs.search_term }}
