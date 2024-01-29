@@ -110,4 +110,4 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           gh pr review --approve "${{ github.event.client_payload.detail.pull_request }}"
-          gh pr merge -r "${{ github.event.client_payload.detail.pull_request }}"
+          gh pr merge -s "${{ github.event.client_payload.detail.pull_request }}"
