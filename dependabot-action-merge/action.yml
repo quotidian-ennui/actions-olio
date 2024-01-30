@@ -23,12 +23,6 @@ runs:
           *) return 1;;
           esac
         }
-        if [[ "${{ github.event.client_payload.detail.pull_request }}" != "" ]]
-        then
-          echo "is_pr=true"  >> "$GITHUB_OUTPUT"
-        else
-          echo "is_pr=false"  >> "$GITHUB_OUTPUT"
-        fi
         if [[ "${{ github.event.client_payload.detail.pull_request }}" != "" && "${{ github.event.client_payload.base.actor }}" == "dependabot[bot]" ]]
         then
           echo "is_dependabot_pr=true"  >> "$GITHUB_OUTPUT"
@@ -53,7 +47,7 @@ runs:
       id: comment
       uses: quotidian-ennui/actions-olio/pr-or-issue-comment@main
       if: |
-        steps.bootstrap.outputs.is_pr == 'true'
+        steps.bootstrap.outputs.is_dependabot_pr == 'true'
       with:
         issue_number: ${{ github.event.client_payload.detail.pull_request }}
         body: |
