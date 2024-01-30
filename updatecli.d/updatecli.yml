@@ -5,7 +5,7 @@ name: 'updatecli'
 actions:
   pull_request:
     scmid: github
-    title: 'chore(deps): Bump updatecli version to {{ source "latest" }}'
+    title: 'deps(ci): Bump updatecli version to {{ source "latest" }}'
     kind: github/pullrequest
     mergemethod: "squash"
     spec:
@@ -25,8 +25,8 @@ scms:
       username: '{{ requiredEnv "UPDATECLI_GITHUB_USER" }}'
       token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
       commitmessage:
-        type: "chore"
-        scope: "deps"
+        type: "deps"
+        scope: "ci"
         title: 'Bump updatecli version to {{ source "latest" }}'
         hidecredit: true
 # {{ end }}
