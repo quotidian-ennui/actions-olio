@@ -94,7 +94,7 @@ jobs:
         env:
           DOCKER_TAGS: ${{ steps.docker.outputs.image_tags }}
         run: |
-          for image in "$DOCKER_TAGS"; do
+          for image in $DOCKER_TAGS; do
             docker rmi "$image"
           done
       - name: Check Status
