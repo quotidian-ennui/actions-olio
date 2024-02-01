@@ -1,13 +1,18 @@
 name: dependabot-action-merge
 description: |
   Merge PRs that modify actions from dependabot (up-to semver:minor).
-  Has an implicit relationship to repo-dispatch since it tries to use client_payload from
+  Has an implicit relationship to pr-trigger since it tries to use client_payload from
   a repository dispatch event.
 inputs:
   token:
     description: The github token to use when committing changes
     required: false
     default: ${{ github.token }}
+  automerge_level:
+    description: |
+      The semver level to allow automerge up to (default semver-patch|semver-minor).
+    required: false
+    default: "semver-patch|semver-minor"
 
 runs:
   using: composite
@@ -16,10 +21,10 @@ runs:
       id: bootstrap
       shell: bash
       run: |
-        function patch_or_minor() {
+        function mergeable() {
           local update_type=${1/version-update:/}
           case "$update_type" in
-          semver-patch|semver-minor) return 0;;
+          ${{ inputs.automerge_level }}) return 0;;
           *) return 1;;
           esac
         }
@@ -30,7 +35,7 @@ runs:
           echo "is_dependabot_pr=false"  >> "$GITHUB_OUTPUT"
         fi
         # shellcheck disable=SC2091
-        if patch_or_minor "${{ github.event.client_payload.detail.dependabot_update_type }}"
+        if mergeable "${{ github.event.client_payload.detail.dependabot_update_type }}"
         then
           echo "automerge=true" >> "$GITHUB_OUTPUT"
         else
@@ -43,7 +48,33 @@ runs:
         files_yaml: |
           workflows:
             - ".github/workflows/**"
-    - name: Update PR with Automerge comment
+    - name: Generate Summary
+      id: summary
+      shell: bash
+      run: |
+        function largest_semver() {
+          case "${{ inputs.automerge_level }}" in
+            *semver-major*) echo "semver-major";;
+            *semver-minor*) echo "semver-minor";;
+            *) echo "semver-patch";;
+          esac
+        }
+
+        {
+          echo "| Decision Table | Value |";
+          echo "| ------ | ------ |";
+          echo "|Automerge allowed up to| $(largest_semver) |"
+          echo "|Update Type| $(echo ${{ github.event.client_payload.detail.dependabot_update_type }} | sed -e "s/^version-update://") |";
+          echo "|is_dependabot| ${{ steps.bootstrap.outputs.is_dependabot_pr }} |";
+          echo "|action changes| ${{ steps.changes.outputs.workflows_any_changed }} |";
+        } > "$GITHUB_STEP_SUMMARY"
+        eof=$(head -c15 /dev/urandom | base64)
+        {
+          printf "comment<<%s\n" "${eof}";
+          cat "$GITHUB_STEP_SUMMARY";
+          printf "%s\n" "${eof}";
+        } >> "$GITHUB_OUTPUT"
+    - name: Update PR
       id: comment
       uses: quotidian-ennui/actions-olio/pr-or-issue-comment@main
       if: |
@@ -53,12 +84,7 @@ runs:
         body: |
           :dependabot: Attempt Merge: ${{ steps.bootstrap.outputs.automerge }}
 
-          | Decision Table | Value |
-          | ------ | ------ |
-          |Automerge allowed up to| semver-minor |
-          |Update Type| ${{ github.event.client_payload.detail.dependabot_update_type }} |
-          |is_dependabot| ${{ steps.bootstrap.outputs.is_dependabot_pr }} |
-          |action changes| ${{ steps.changes.outputs.workflows_any_changed }} |
+          ${{ steps.summary.outputs.comment }}
         token: ${{ inputs.token }}
         search_term: "dependabot-action-automerge-status"
     - name: Dependabot Merge
@@ -66,6 +92,7 @@ runs:
       if: |
         startsWith(github.event.client_payload.base.ref, 'dependabot') &&
         steps.bootstrap.outputs.is_dependabot_pr == 'true' &&
+        steps.changes.outputs.workflows_any_changed == 'true' &&
         steps.bootstrap.outputs.automerge == 'true'
       shell: bash
       env:
