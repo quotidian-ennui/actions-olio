@@ -1,9 +1,10 @@
 name: dependabot-pr
-run-name: Merge Dependabot PR (${{ github.event.client_payload.detail.pull_request }})
+run-name: Assess PR (${{ github.event.client_payload.detail.pull_request }})
 on:
   repository_dispatch:
     types:
       - pr-trigger
+      - pr-or-issue-comment-success
 
 permissions:
   contents: write
@@ -14,12 +15,33 @@ permissions:
 jobs:
   actions_merge:
     runs-on: ubuntu-latest
-    name: Dependabot Merge (action changes)
+    name: Dependabot Merge
     steps:
-      - name: Checkout branch
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Debug Env & Event
+        uses: hmarr/debug-action@cd1afbd7852b7ad7b1b7a9a1b03efebd3b0a1820 # v3.0.0
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+          echo "$GITHUB_CONTEXT"
+      - name: Checkout
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
         with:
           ref: ${{ github.event.client_payload.base.ref }}
+          fetch-depth: 0
+      - name: "Prepare"
+        id: prepare
+        run: |
+          case "${{ github.event.event_type }}" in
+            pr-or-issue-comment-success)
+              echo 'change_filter=pr-or-issue-comment/**' >> "$GITHUB_OUTPUT"
+              echo "automerge_level=semver-patch" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo 'change_filter=.github/workflows/**' >> "$GITHUB_OUTPUT"
+              echo "automerge_level=semver-patch|semver-minor" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
       - name: "Create Token"
         uses: actions/create-github-app-token@86576b355dd19da0519e0bdb63d8edb5bcf76a25 # v1.7.0
         id: app-token
@@ -29,6 +51,8 @@ jobs:
           owner: ${{ github.repository_owner }}
       - name: Dependabot Merge
         id: dependabot_merge
-        uses: ./dependabot-action-merge
+        uses: ./dependabot-merge
         with:
           token: ${{ steps.app-token.outputs.token }}
+          automerge_level: ${{ steps.prepare.outputs.automerge_level }}
+          change_filter: ${{ steps.prepare.outputs.change_filter }}
