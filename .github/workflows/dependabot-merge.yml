@@ -1,9 +1,13 @@
 name: dependabot-pr
-run-name: Merge Dependabot PR (${{ github.event.client_payload.detail.pull_request }})
+run-name: Assess PR (${{ github.event.client_payload.detail.pull_request }})
 on:
   repository_dispatch:
     types:
       - pr-trigger
+      - pr-issue-comment-test-success
+      - pr-commit-status-test-success
+      - pr-docker-image-builder-test-success
+      - pr-repo-dispatch-test-success
 
 permissions:
   contents: write
@@ -14,12 +18,38 @@ permissions:
 jobs:
   actions_merge:
     runs-on: ubuntu-latest
-    name: Dependabot Merge (action changes)
+    name: Dependabot Merge
     steps:
-      - name: Checkout branch
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Checkout
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
         with:
           ref: ${{ github.event.client_payload.base.ref }}
+          fetch-depth: 0
+      - name: "Prepare"
+        id: prepare
+        run: |
+          case "${{ github.event.event_type }}" in
+            pr-issue-comment-test-success)
+              echo 'change_filter=pr-or-issue-comment/**' >> "$GITHUB_OUTPUT"
+              echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
+              ;;
+            pr-commit-status-test-success)
+              echo 'change_filter=commit-status-and-label/**' >> "$GITHUB_OUTPUT"
+              echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
+              ;;
+            pr-docker-image-builder-test-success)
+              echo 'change_filter=docker-image-builder/**' >> "$GITHUB_OUTPUT"
+              echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
+              ;;
+            pr-repo-dispatch-test-success)
+              echo 'change_filter=repo-dispatch/**' >> "$GITHUB_OUTPUT"
+              echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo 'change_filter=.github/workflows/**' >> "$GITHUB_OUTPUT"
+              echo 'automerge_level=semver-patch|semver-minor' >> "$GITHUB_OUTPUT"
+              ;;
+          esac
       - name: "Create Token"
         uses: actions/create-github-app-token@86576b355dd19da0519e0bdb63d8edb5bcf76a25 # v1.7.0
         id: app-token
@@ -29,6 +59,8 @@ jobs:
           owner: ${{ github.repository_owner }}
       - name: Dependabot Merge
         id: dependabot_merge
-        uses: ./dependabot-action-merge
+        uses: ./dependabot-merge
         with:
           token: ${{ steps.app-token.outputs.token }}
+          automerge_level: ${{ steps.prepare.outputs.automerge_level }}
+          change_filter: ${{ steps.prepare.outputs.change_filter }}

@@ -1,19 +1,23 @@
-name: dependabot-action-merge
+name: dependabot-merge
 description: |
-  Merge PRs that modify actions from dependabot (up-to semver:minor).
-  Has an implicit relationship to pr-trigger since it tries to use client_payload from
+  Merge PRs raised by dependabot that match a filter and have a semver level matching the
+  automerge level. Has an implicit relationship to pr-trigger since it tries to use client_payload from
   a repository dispatch event.
 inputs:
   token:
     description: The github token to use when committing changes
     required: false
     default: ${{ github.token }}
+  change_filter:
+    description: |
+      The filter to use finding source file changes
+    required: false
+    default: ".github/workflows/**"
   automerge_level:
     description: |
       The semver level to allow automerge up to (default semver-patch|semver-minor).
     required: false
     default: "semver-patch|semver-minor"
-
 runs:
   using: composite
   steps:
@@ -21,15 +25,13 @@ runs:
       id: changes
       uses: tj-actions/changed-files@90a06d6ba9543371ab4df8eeca0be07ca6054959 # v42.0.2
       with:
-        files_yaml: |
-          workflows:
-            - ".github/workflows/**"
+        files: ${{ inputs.change_filter }}
     - name: Prepare
       id: bootstrap
       shell: bash
       run: |
         function mergeable() {
-          if [[ "${{ steps.changes.outputs.workflows_any_changed }}" != "true" ]]
+          if [[ "${{ steps.changes.outputs.any_changed }}" != "true" ]]
           then
             return 1
           fi
@@ -66,11 +68,13 @@ runs:
 
         {
           echo "| Decision Table | Value |";
-          echo "| ------ | ------ |";
-          echo "|Automerge allowed up to| $(largest_semver) |"
-          echo "|Update Type| $(echo ${{ github.event.client_payload.detail.dependabot_update_type }} | sed -e "s/^version-update://") |";
+          echo "| ------ | ------ |"
+          echo "|job_id| ${{ github.job }} |"
           echo "|is_dependabot| ${{ steps.bootstrap.outputs.is_dependabot_pr }} |";
-          echo "|action changes| ${{ steps.changes.outputs.workflows_any_changed }} |";
+          echo "|automerge (up to)| $(largest_semver) |"
+          echo "|update_type| $(echo ${{ github.event.client_payload.detail.dependabot_update_type }} | sed -e "s/^version-update://") |";
+          echo "|change_filter| ${{ inputs.change_filter }} |";
+          echo "|has_changes | ${{ steps.changes.outputs.any_changed  }} |";
         } > "$GITHUB_STEP_SUMMARY"
         eof=$(head -c15 /dev/urandom | base64)
         {
@@ -90,13 +94,13 @@ runs:
 
           ${{ steps.summary.outputs.comment }}
         token: ${{ inputs.token }}
-        search_term: "dependabot-action-automerge-status"
+        search_term: "dependabot-automerge-status ${{ inputs.change_filter }}"
     - name: Dependabot Merge
       continue-on-error: true
       if: |
         startsWith(github.event.client_payload.base.ref, 'dependabot') &&
         steps.bootstrap.outputs.is_dependabot_pr == 'true' &&
-        steps.changes.outputs.workflows_any_changed == 'true' &&
+        steps.changes.outputs.any_changed  == 'true' &&
         steps.bootstrap.outputs.automerge == 'true'
       shell: bash
       env:
