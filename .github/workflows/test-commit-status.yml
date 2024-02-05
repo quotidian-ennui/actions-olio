@@ -94,3 +94,21 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
           state: "${{ steps.check.outcome }}"
+
+  notification:
+    name: notification
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - test-commit-status
+    if: |
+      github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: dispatch
+        uses: ./pr-trigger
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event_type: "pr-commit-status-test-success"
