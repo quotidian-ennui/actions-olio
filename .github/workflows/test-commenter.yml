@@ -21,8 +21,8 @@ concurrency:
 permissions: {}
 
 jobs:
-  test-comment:
-    name: test-comment
+  test-commenter:
+    name: test-commenter
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -90,3 +90,21 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
           state: "${{ steps.assert.outcome }}"
+
+  notification:
+    name: notification
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - test-commenter
+    if: |
+      github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: dispatch
+        uses: ./pr-trigger
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event_type: "pr-issue-comment-test-success"
