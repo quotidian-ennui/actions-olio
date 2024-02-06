@@ -9,7 +9,7 @@ github-actions that don't live in `./github/workflows` don't get automatically t
 ## Usage
 
 - Requires you to have `contents:write` & `pull_requests:write` permissions attached to the token.
-- Examine [dependabot.template.yml](.github/dependabot.template.yml) if you want to see it in use in this repo.
+- Examine [dependabot.template.yml](../.github/dependabot.template.yml) if you want to see it in use in this repo.
 
 ```action
 name: Regenerate Dependabot Config
