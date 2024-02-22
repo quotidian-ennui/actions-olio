@@ -9,7 +9,9 @@ I use it in my personal projects where I'm building docker images (https://githu
 
 ## Usage
 
-Defaults are bracketed
+- Requires you to have contents:read & packages:write permissions attached to the token (packages:write required to publish to ghcr).
+
+Defaults are the values in parentheses
 
 ```action
 - name: docker-build-push
