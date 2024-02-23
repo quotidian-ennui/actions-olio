@@ -24,6 +24,7 @@ jobs:
           app-id: ${{ vars.WORKFLOW_UPDATE_APP_ID }}
           private-key: ${{ secrets.WORKFLOW_UPDATE_KEY }}
           owner: ${{ github.repository_owner }}
+          repositories: "${{ github.event.repository.name}}"
       - name: updatecli
         uses: ./default-updatecli
         with:
