@@ -18,9 +18,11 @@ jobs:
     permissions:
       contents: read
     outputs:
-      actions: ${{ steps.changes.outputs.actions_any_changed }}
       workflows: ${{ steps.changes.outputs.workflows_any_changed }}
       shellscripts: ${{ steps.changes.outputs.shellscripts_any_changed }}
+      dependabot_merge: ${{ steps.changes.outputs.dependabot_merge_any_changed }}
+      dependabot_config: ${{ steps.changes.outputs.dependabot_config_any_changed }}
+      default_updatecli: ${{ steps.changes.outputs.default_updatecli_any_changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -33,12 +35,17 @@ jobs:
         uses: tj-actions/changed-files@800a2825992141ddde1a8bca8ad394cec34d3188 # v42.0.5
         with:
           files_yaml: |
-            actions:
-              - "**/action.yml"
             workflows:
               - ".github/workflows/**"
             shellscripts:
               - "**/*.sh"
+            dependabot_merge:
+              - "dependabot-merge/**"
+            dependabot_config:
+              - "generate-dependabot-config/**"
+            default_updatecli:
+              - "default-updatecli/**"
+
 
   commits:
     name: Conventional Commits
@@ -99,3 +106,25 @@ jobs:
           reporter: github-pr-review
           pattern: |
             *.sh
+
+  dependabot_patch_merge:
+    name: merge-untested-actions
+    runs-on: ubuntu-latest
+    needs:
+      - changes
+    permissions:
+      contents: write
+    if: |
+      (needs.changes.outputs.dependabot_merge == 'true' ||
+      needs.changes.outputs.dependabot_config == 'true' ||
+      needs.changes.outputs.default_updatecli == 'true') &&
+      github.event_name == 'pull_request' &&
+      github.actor == 'dependabot[bot]'
+    steps:
+      - name: checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: dispatch
+        uses: ./pr-trigger
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event_type: "pr-untested-actions"

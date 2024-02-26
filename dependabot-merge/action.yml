@@ -10,9 +10,14 @@ inputs:
     default: ${{ github.token }}
   change_filter:
     description: |
-      The filter to use finding source file changes
+      The filter to use finding source file changes.
     required: false
     default: ".github/workflows/**"
+  filter_separator:
+    description: |
+      The separator to use when splitting the change_filter.
+    required: false
+    default: "\n"
   automerge_level:
     description: |
       The semver level to allow automerge up to (default semver-patch|semver-minor).
@@ -26,6 +31,7 @@ runs:
       uses: tj-actions/changed-files@3f54ebb830831fc121d3263c1857cfbdc310cdb9 # v42.0.4
       with:
         files: ${{ inputs.change_filter }}
+        files_separator: ${{ inputs.filter_separator }}
     - name: Prepare
       id: bootstrap
       shell: bash

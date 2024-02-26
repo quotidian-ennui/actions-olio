@@ -8,6 +8,7 @@ on:
       - pr-commit-status-test-success
       - pr-docker-image-builder-test-success
       - pr-repo-dispatch-test-success
+      - pr-untested-actions
 
 permissions:
   contents: write
@@ -28,7 +29,7 @@ jobs:
       - name: "Prepare"
         id: prepare
         run: |
-          case "${{ github.event.event_type }}" in
+          case "${{ github.event.action }}" in
             pr-issue-comment-test-success)
               echo 'change_filter=pr-or-issue-comment/**' >> "$GITHUB_OUTPUT"
               echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
@@ -43,6 +44,10 @@ jobs:
               ;;
             pr-repo-dispatch-test-success)
               echo 'change_filter=repo-dispatch/**' >> "$GITHUB_OUTPUT"
+              echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
+              ;;
+            pr-untested-actions)
+              echo 'change_filter=dependabot-merge/**,default-updatecli/**,generate-dependabot-config/**' >> "$GITHUB_OUTPUT"
               echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
               ;;
             *)
@@ -65,3 +70,4 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           automerge_level: ${{ steps.prepare.outputs.automerge_level }}
           change_filter: ${{ steps.prepare.outputs.change_filter }}
+          filter_separator: ","
