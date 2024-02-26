@@ -86,7 +86,7 @@ runs:
             *) echo "semver-patch";;
           esac
         }
-
+        summary_body_file=$(mktemp --tmpdir="$RUNNER_TEMP" "summary-comment-XXXXXXXX")
         {
           echo ":dependabot: Attempt Merge: ${{ steps.bootstrap.outputs.automerge }}"
           echo ""
@@ -96,15 +96,11 @@ runs:
           echo "|is_dependabot| ${{ steps.bootstrap.outputs.is_dependabot_pr }} |";
           echo "|automerge (up to)| $(largest_semver) |"
           echo "|update_type| $(echo ${{ github.event.client_payload.detail.dependabot_update_type }} | sed -e "s/^version-update://") |";
-          echo "|change_filter| ${{ inputs.change_filter }} |";
+          echo "|change_filter| \`${{ inputs.change_filter }}\` |";
           echo "|has_changes | ${{ steps.changes.outputs.any_changed  }} |";
-        } > "$GITHUB_STEP_SUMMARY"
-        eof=$(head -c15 /dev/urandom | base64)
-        {
-          printf "comment<<%s\n" "${eof}";
-          cat "$GITHUB_STEP_SUMMARY";
-          printf "%s\n" "${eof}";
-        } >> "$GITHUB_OUTPUT"
+        } > "$summary_body_file"
+        cat $summary_body_file >> "$GITHUB_STEP_SUMMARY"
+        echo "summary_body_file=$summary_body_file" >> "$GITHUB_OUTPUT"
     - name: Update PR
       id: comment
       uses: quotidian-ennui/actions-olio/pr-or-issue-comment@main
@@ -112,8 +108,7 @@ runs:
         steps.bootstrap.outputs.is_dependabot_pr == 'true'
       with:
         issue_number: ${{ github.event.client_payload.detail.pull_request }}
-        body: |
-          ${{ steps.summary.outputs.comment }}
+        body_path: ${{ steps.summary.outputs.summary_body_file }}
         token: ${{ inputs.token }}
         search_term: "dependabot-automerge-status ${{ inputs.change_filter }}"
     - name: Merge
