@@ -1,5 +1,5 @@
 name: dependabot-pr
-run-name: Assess PR (${{ github.event.client_payload.detail.pull_request }})
+run-name: Assess PR (${{ github.event.client_payload.detail.pull_request }}) - ${{ github.event.action }}
 on:
   repository_dispatch:
     types:
