@@ -33,26 +33,32 @@ jobs:
             pr-issue-comment-test-success)
               echo 'change_filter=pr-or-issue-comment/**' >> "$GITHUB_OUTPUT"
               echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
+              echo 'merge_context=PR or issue comment tests passed' >> "$GITHUB_OUTPUT"
               ;;
             pr-commit-status-test-success)
               echo 'change_filter=commit-status-and-label/**' >> "$GITHUB_OUTPUT"
               echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
+              echo 'merge_context=Commit Status & Label Tests passed' >> "$GITHUB_OUTPUT"
               ;;
             pr-docker-image-builder-test-success)
               echo 'change_filter=docker-image-builder/**' >> "$GITHUB_OUTPUT"
               echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
+              echo 'merge_context=Docker image builder tests passed' >> "$GITHUB_OUTPUT"
               ;;
             pr-repo-dispatch-test-success)
               echo 'change_filter=repo-dispatch/**' >> "$GITHUB_OUTPUT"
               echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
+              echo 'merge_context=Repo Dispatch tests passed' >> "$GITHUB_OUTPUT"
               ;;
             pr-untested-actions)
               echo 'change_filter=dependabot-merge/**,default-updatecli/**,generate-dependabot-config/**' >> "$GITHUB_OUTPUT"
               echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
+              echo 'merge_context=Updates to actions that have no tests :frowning:' >> "$GITHUB_OUTPUT"
               ;;
             *)
               echo 'change_filter=.github/workflows/**' >> "$GITHUB_OUTPUT"
               echo 'automerge_level=semver-patch|semver-minor' >> "$GITHUB_OUTPUT"
+              echo 'merge_context=Updates to workflows in this repo' >> "$GITHUB_OUTPUT"
               ;;
           esac
       - name: "Create Token"
@@ -70,4 +76,5 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           automerge_level: ${{ steps.prepare.outputs.automerge_level }}
           change_filter: ${{ steps.prepare.outputs.change_filter }}
+          merge_commentary: ${{ steps.prepare.outputs.merge_context }}
           filter_separator: ","

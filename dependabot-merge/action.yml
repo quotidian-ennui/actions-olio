@@ -23,6 +23,11 @@ inputs:
       The semver level to allow automerge up to (default semver-patch|semver-minor).
     required: false
     default: "semver-patch|semver-minor"
+  merge_commentary:
+    description: |
+      Additional context to add to generated comments. (defaults to blank)
+    required: false
+    default: ""
 runs:
   using: composite
   steps:
@@ -88,6 +93,11 @@ runs:
         }
         summary_body_file=$(mktemp --tmpdir="$RUNNER_TEMP" "summary-comment-XXXXXXXX")
         {
+          if [[ "${{ inputs.merge_commentary }}" != "" ]]
+          then
+            echo "${{ inputs.merge_commentary }}"
+            echo ""
+          fi
           echo ":dependabot: Attempt Merge: ${{ steps.bootstrap.outputs.automerge }}"
           echo ""
           echo "| Decision Table | Value |";
@@ -130,12 +140,18 @@ runs:
     - name: PR Result Comment
       id: merge_result
       if: |
+        (success() || failure()) &&
         steps.bootstrap.outputs.automerge == 'true'
       shell: bash
       run: |
         eof=$(head -c15 /dev/urandom | base64)
         {
           printf "comment<<%s\n" "${eof}";
+          if [[ "${{ inputs.merge_commentary }}" != "" ]]
+          then
+            echo "${{ inputs.merge_commentary }}"
+            echo ""
+          fi
           if [[ "${{ steps.merge.outcome }}" == "success" ]]
           then
             echo ":dependabot: Merge Success :thumbsup:"
