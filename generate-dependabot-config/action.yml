@@ -35,7 +35,7 @@ runs:
         first_diff=$(basename "$(comm -3 "${ORIGINAL_CONFIG_DIRS}" "${CHANGED_CONFIG_DIRS}" | head -n 1 | sed -e 's/^[[:blank:]]*//' -e 's/[[:blank:]]*$//')")
         echo "commit_msg=feat(ci): update dependabot config ($first_diff)" >> "$GITHUB_OUTPUT"
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@a4f52f8033a6168103c2538976c07b467e8163bc # v6.0.1
+      uses: peter-evans/create-pull-request@70a41aba780001da0a30141984ae2a0c95d8704e # v6.0.2
       with:
         commit-message: "${{ steps.highlight.outputs.commit_msg }}"
         branch: feature/ci-update-dependabot-config-${{ hashFiles('**/dependabot.yml') }}
