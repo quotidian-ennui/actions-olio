@@ -29,7 +29,7 @@ release push="localonly":
   push="{{ push }}"
   next="v$(git semver next --stable=false)"
   switch_reference "main" "$next"
-  git tag "$next"
+  git tag "$next" -m"release $next"
   switch_reference "$next" "main"
   case "$push" in
     push|github)
