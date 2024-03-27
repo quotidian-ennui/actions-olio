@@ -28,7 +28,7 @@ runs:
       uses: dependabot/fetch-metadata@0fb21704c18a42ce5aa8d720ea4b912f5e6babef # v2.0.0
     - name: dispatch
       id: dispatch
-      uses: quotidian-ennui/actions-olio/repo-dispatch@main
+      uses: quotidian-ennui/actions-olio/repo-dispatch@v0.3.0
       with:
         event_type: "${{ inputs.event_type }}"
         token: ${{ inputs.token }}
