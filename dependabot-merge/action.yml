@@ -28,6 +28,22 @@ inputs:
       Additional context to add to generated comments. (defaults to blank)
     required: false
     default: ""
+  merge_max_attempts:
+    description: |
+      Max Merge Attempts (default 2)
+    required: false
+    default: "2"
+  merge_retry_wait_seconds:
+    description: |
+      Wait between each retry (default 60s)
+    required: false
+    default: "60"
+  merge_timeout_seconds:
+    description: |
+      Timeout (default 60s)
+    required: false
+    default: "60"
+
 runs:
   using: composite
   steps:
@@ -130,9 +146,9 @@ runs:
         GITHUB_TOKEN: ${{ inputs.token }}
       with:
         shell: bash
-        max_attempts: 2
-        retry_wait_seconds: 30
-        timeout_seconds: 30
+        max_attempts: ${{ inputs.merge_max_attempts }}
+        retry_wait_seconds: ${{ inputs.merge_retry_wait_seconds }}
+        timeout_seconds: ${{ inputs.merge_timeout_seconds }}
         retry_on: error
         command: |
           gh pr review --approve "${{ github.event.client_payload.detail.pull_request }}"
