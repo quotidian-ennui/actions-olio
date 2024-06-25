@@ -1,5 +1,7 @@
 # generate-dependabot-config
 
+> This is now deprecated since <https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#directories> as of 2024-06-25 means you can just specify multiple directories in the dependabot.yml file. __It will be deleted real once I have removed its dependents__
+
 Generates `.github/dependabot.yml` from a `.github/dependabot.template.yml` using makeshift/generate-dependabot-glob-action and raises a pull request
 
 ## Why
@@ -52,7 +54,7 @@ jobs:
 ## Notes
 
 - It uses `yq` under the covers to extract the directories that have been added or removed. The 'first diff' in this list is used as part of the commit message. This just leaves us with a slightly better conventional commit message.
-    - If you change dependabot.template.yml so that things that don't require globbing has changed then your commit message will contain empty brackets (I might get round to making that better).
+  - If you change dependabot.template.yml so that things that don't require globbing has changed then your commit message will contain empty brackets (I might get round to making that better).
 
 ## Dependencies
 
@@ -61,4 +63,3 @@ It's a composite action that wraps the following actions:
 - makeshift/generate-dependabot-glob-action
 - actionsx/prettier (because makeshift has formatting opinions, prettier has opinions and I have opinions; prettier saves time if you use megalinter)
 - peter-evans/create-pull-request
-

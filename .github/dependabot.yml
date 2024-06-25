@@ -3,7 +3,8 @@
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: /
+    directories:
+      - "/"
     open-pull-requests-limit: 10
     schedule:
       interval: weekly
@@ -12,63 +13,16 @@ updates:
     commit-message:
       prefix: "deps(ci): "
   - package-ecosystem: github-actions
-    directory: commit-status-and-label
-    schedule:
-      interval: weekly
-    allow:
-      - dependency-type: all
-    commit-message:
-      prefix: "deps: "
-  - package-ecosystem: github-actions
-    directory: default-updatecli
-    schedule:
-      interval: weekly
-    allow:
-      - dependency-type: all
-    commit-message:
-      prefix: "deps: "
-  - package-ecosystem: github-actions
-    directory: dependabot-merge
-    schedule:
-      interval: weekly
-    allow:
-      - dependency-type: all
-    commit-message:
-      prefix: "deps: "
-  - package-ecosystem: github-actions
-    directory: docker-image-builder
-    schedule:
-      interval: weekly
-    allow:
-      - dependency-type: all
-    commit-message:
-      prefix: "deps: "
-  - package-ecosystem: github-actions
-    directory: generate-dependabot-config
-    schedule:
-      interval: weekly
-    allow:
-      - dependency-type: all
-    commit-message:
-      prefix: "deps: "
-  - package-ecosystem: github-actions
-    directory: pr-or-issue-comment
-    schedule:
-      interval: weekly
-    allow:
-      - dependency-type: all
-    commit-message:
-      prefix: "deps: "
-  - package-ecosystem: github-actions
-    directory: pr-trigger
-    schedule:
-      interval: weekly
-    allow:
-      - dependency-type: all
-    commit-message:
-      prefix: "deps: "
-  - package-ecosystem: github-actions
-    directory: repo-dispatch
+    directories:
+      - "commit-status-and-label"
+      - "default-updatecli"
+      - "dependabot-merge"
+      - "docker-image-builder"
+      - "generate-dependabot-config"
+      - "pr-or-issue-comment"
+      - "pr-trigger"
+      - "repo-dispatch"
+    open-pull-requests-limit: 10
     schedule:
       interval: weekly
     allow:
