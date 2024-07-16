@@ -1,6 +1,12 @@
 name: Docker Build
 description: Build and optionally publish an image.
 inputs:
+  cache_from:
+    description: "List of external cache sources for build-push-action (e.g., user/app:cache, type=local,src=path/to/dir)"
+    required: false
+  cache_to:
+    description: "List of cache export destinations for build-push-action (e.g., user/app:cache, type=local,dest=path/to/dir)"
+    required: false
   registry_push:
     description: Whether to push to the registry
     required: false
@@ -108,3 +114,5 @@ runs:
         tags: ${{ steps.docker_meta.outputs.tags }}
         labels: ${{ steps.docker_meta.outputs.labels }}
         provenance: false
+        cache-from: ${{ inputs.cache_from }}
+        cache-to: ${{ inputs.cache_to }}
