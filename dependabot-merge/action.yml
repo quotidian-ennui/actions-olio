@@ -152,7 +152,7 @@ runs:
         retry_on: error
         command: |
           gh pr review --approve "${{ github.event.client_payload.detail.pull_request }}"
-          gh pr merge -s "${{ github.event.client_payload.detail.pull_request }}"
+          gh pr merge -s "${{ github.event.client_payload.detail.pull_request }}" --auto
     - name: PR Result Comment
       id: merge_result
       if: |
