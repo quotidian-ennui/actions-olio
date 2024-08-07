@@ -43,6 +43,11 @@ inputs:
       Timeout (default 60s)
     required: false
     default: "60"
+  merge_flags:
+    description: |
+      additional merge_flags (e.g. --auto)
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -152,7 +157,7 @@ runs:
         retry_on: error
         command: |
           gh pr review --approve "${{ github.event.client_payload.detail.pull_request }}"
-          gh pr merge -s "${{ github.event.client_payload.detail.pull_request }}" --auto
+          gh pr merge -s "${{ github.event.client_payload.detail.pull_request }}" ${{ inputs.merge_flags }}
     - name: PR Result Comment
       id: merge_result
       if: |
