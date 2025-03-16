@@ -54,7 +54,7 @@ runs:
   steps:
     - name: Changes
       id: changes
-      uses: tj-actions/changed-files@9237eb7a0f95c801719e6224d45095d4dda0f9bd # v45.0.7
+      uses: tj-actions/changed-files@2f7c5bfce28377bc069a65ba478de0a74aa0ca32 # v46.0.1
       with:
         files: ${{ inputs.change_filter }}
         files_separator: ${{ inputs.filter_separator }}

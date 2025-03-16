@@ -32,7 +32,7 @@ jobs:
       - name: Changed Files
         # Attempt to figure out what files have changed
         id: changes
-        uses: tj-actions/changed-files@9237eb7a0f95c801719e6224d45095d4dda0f9bd # v45.0.7
+        uses: tj-actions/changed-files@2f7c5bfce28377bc069a65ba478de0a74aa0ca32 # v46.0.1
         with:
           files_yaml: |
             workflows:
@@ -45,7 +45,6 @@ jobs:
               - "generate-dependabot-config/**"
             default_updatecli:
               - "default-updatecli/**"
-
 
   commits:
     name: Conventional Commits
