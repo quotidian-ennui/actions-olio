@@ -1,4 +1,6 @@
 set positional-arguments := true
+set unstable := true
+set script-interpreter := ['/usr/bin/env', 'bash']
 
 OS_NAME := `uname -o | tr '[:upper:]' '[:lower:]'`
 
@@ -8,8 +10,9 @@ OS_NAME := `uname -o | tr '[:upper:]' '[:lower:]'`
     just --list --list-prefix "  "
 
 [doc('auto-generate tag and release')]
+[script]
 autotag push="localonly":
-    #!/usr/bin/env bash
+    #
     set -eo pipefail
 
     next="$(git semver next --stable=false)"
@@ -20,8 +23,9 @@ autotag push="localonly":
 # switch back to @main
 
 [doc('Tag & release')]
+[script]
 release tag push="localonly":
-    #!/usr/bin/env bash
+    #
     set -eo pipefail
 
     switch_reference() {
