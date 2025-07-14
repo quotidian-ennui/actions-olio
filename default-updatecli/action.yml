@@ -4,7 +4,7 @@ inputs:
   version:
     description: The version of updatecli to use
     required: false
-    default: v0.103.1
+    default: v0.104.0
   token:
     description: The github token to use when committing changes
     required: false
