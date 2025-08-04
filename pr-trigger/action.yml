@@ -24,7 +24,6 @@ runs:
     - name: Grab Dependabot metadata
       if: ${{ github.actor == 'dependabot[bot]' }}
       id: depbot-metadata
-      continue-on-error: true
       uses: dependabot/fetch-metadata@08eff52bf64351f401fb50d4972fa95b9f2c2d1b # v2.4.0
     - name: dispatch
       id: dispatch
