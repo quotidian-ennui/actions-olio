@@ -18,7 +18,6 @@ updates:
       - "default-updatecli"
       - "dependabot-merge"
       - "docker-image-builder"
-      - "generate-dependabot-config"
       - "pr-or-issue-comment"
       - "pr-trigger"
       - "repo-dispatch"

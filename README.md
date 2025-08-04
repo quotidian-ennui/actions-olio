@@ -20,7 +20,6 @@ The source of the actions themselves are of course self-documenting :roll_eyes: 
 
 - [docker-image-builder](./docker-image-builder/README.md)
 - [repo-dispatch](./repo-dispatch/README.md)
-- [generate-dependabot-config](./generate-dependabot-config/README.md)
 - [pr-or-issue-comment](./pr-or-issue-comment/README.md)
 - [commit-status-and-label](./commit-status-and-label/README.md)
 - [default-updatecli](./default-updatecli/README.md)
