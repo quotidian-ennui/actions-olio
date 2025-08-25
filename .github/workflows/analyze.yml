@@ -25,7 +25,7 @@ jobs:
       default_updatecli: ${{ steps.changes.outputs.default_updatecli_any_changed }}
     steps:
       - name: Checkout
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
           # fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
@@ -55,7 +55,7 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - name: checkout
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
       - name: committed
@@ -76,7 +76,7 @@ jobs:
       github.event_name == 'pull_request' &&  needs.changes.outputs.workflows == 'true'
     steps:
       - name: checkout
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - name: actionlint
         uses: reviewdog/action-actionlint@e37e2ca68a70112d21e135229272da28ce2d0d5a # v1.66.1
         with:
@@ -97,7 +97,7 @@ jobs:
       github.event_name == 'pull_request' &&  needs.changes.outputs.shellscripts == 'true'
     steps:
       - name: checkout
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - name: shellcheck
         uses: reviewdog/action-shellcheck@1bb9751763fdfbee4b5043772c37374f103bff9e # v1.31.0
         with:
@@ -121,7 +121,7 @@ jobs:
       github.actor == 'dependabot[bot]'
     steps:
       - name: checkout
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - name: dispatch
         uses: ./pr-trigger
         with:
