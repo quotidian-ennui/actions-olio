@@ -25,7 +25,7 @@ jobs:
       default_updatecli: ${{ steps.changes.outputs.default_updatecli_any_changed }}
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -56,12 +56,12 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - name: checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           fetch-depth: 0
           persist-credentials: false
       - name: committed
-        uses: crate-ci/committed@15229711f8f597474c0b636f327cde5969f9a529 # v1.1.7
+        uses: crate-ci/committed@bb02f309663f9baced8dbd5fdd80c6369ddf3efd # v1.1.8
         with:
           args: --no-merge-commit
 
@@ -78,7 +78,7 @@ jobs:
       github.event_name == 'pull_request' &&  needs.changes.outputs.workflows == 'true'
     steps:
       - name: checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
       - name: actionlint
@@ -101,7 +101,7 @@ jobs:
       github.event_name == 'pull_request' &&  needs.changes.outputs.shellscripts == 'true'
     steps:
       - name: checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false        
       - name: shellcheck
@@ -127,7 +127,7 @@ jobs:
       github.actor == 'dependabot[bot]'
     steps:
       - name: checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false        
       - name: dispatch
