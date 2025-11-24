@@ -28,6 +28,7 @@ jobs:
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
           # fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
       - name: Changed Files
         # Attempt to figure out what files have changed
@@ -58,6 +59,7 @@ jobs:
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: committed
         uses: crate-ci/committed@bb02f309663f9baced8dbd5fdd80c6369ddf3efd # v1.1.8
         with:
@@ -77,6 +79,8 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
       - name: actionlint
         uses: reviewdog/action-actionlint@f00ad0691526c10be4021a91b2510f0a769b14d0 # v1.68.0
         with:
@@ -98,6 +102,8 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false        
       - name: shellcheck
         uses: reviewdog/action-shellcheck@4c07458293ac342d477251099501a718ae5ef86e # v1.32.0
         with:
@@ -122,6 +128,8 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false        
       - name: dispatch
         uses: ./pr-trigger
         with:
