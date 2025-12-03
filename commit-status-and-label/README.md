@@ -10,11 +10,10 @@ In this specific repository; how do you enable required checks (via branch prote
 
 - Requires you to have at least `statuses:write`, `pull_requests:write` and perhaps `issues:write`, + `contents:write` permissions attached to the token.
 
-
 ```action
 - name: Pending Status
   id: pending
-  uses: quotdian-ennui/actions-olio/commit-status-and-label@main
+  uses: quotidian-ennui/actions-olio/commit-status-and-label@main
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
     sha: ${{ github.event.pull_request.head.sha }}
@@ -27,7 +26,7 @@ In this specific repository; how do you enable required checks (via branch prote
     echo "Doing the tests"
 - name: Update Status
   id: pending
-  uses: quotdian-ennui/actions-olio/commit-status-and-label@main
+  uses: quotidian-ennui/actions-olio/commit-status-and-label@main
   if: success() || failure()
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
