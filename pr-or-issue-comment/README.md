@@ -13,7 +13,7 @@ Sometimes, the activity from a github action is pretty mysterious. It's nice to 
 ```action
 - name: comment
   id: comment
-  uses: quotdian-ennui/actions-olio/pr-or-issue-comment@main
+  uses: quotidian-ennui/actions-olio/pr-or-issue-comment@main
   if: success() || failure()
   with:
     issue_number: ${{ steps.findpr.outputs.pr }}
