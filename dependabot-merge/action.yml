@@ -134,7 +134,7 @@ runs:
         echo "summary_body_file=$summary_body_file" >> "$GITHUB_OUTPUT"
     - name: Update PR
       id: comment
-      uses: quotidian-ennui/actions-olio/pr-or-issue-comment@main
+      uses: quotidian-ennui/actions-olio/pr-or-issue-comment@v0.8.1
       if: |
         steps.bootstrap.outputs.is_dependabot_pr == 'true'
       with:
@@ -191,7 +191,7 @@ runs:
       if: |
         (success() || failure()) &&
         steps.bootstrap.outputs.automerge == 'true'
-      uses: quotidian-ennui/actions-olio/pr-or-issue-comment@main
+      uses: quotidian-ennui/actions-olio/pr-or-issue-comment@v0.8.1
       with:
         issue_number: ${{ github.event.client_payload.detail.pull_request }}
         body: |
