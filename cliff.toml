@@ -50,6 +50,7 @@ footer = """
 postprocessors = [
     { pattern = 'dependabot\[.*\]', replace="@dependabot"},
     { pattern = 'Lewin Chan', replace="@quotidian-ennui"},
+    { pattern = 'Matthew Warman', replace="@mcwarman"},
     { pattern = 'qe-repo-updater\[.*\]', replace="[qe-repo-updater](https://github.com/apps/qe-repo-updater)"},
 ]
 
