@@ -41,14 +41,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          persist-credentials: false        
+          persist-credentials: false
       - name: Update Status
         id: check_pending
         uses: ./commit-status-and-label
         if: github.event_name == 'pull_request'
         with:
           token: ${{ github.token }}
-          sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          sha: ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
           state: "pending"
       - name: generate comment
         id: generate
@@ -60,7 +60,7 @@ jobs:
         with:
           issue_number: 8
           body: |
-            comment_default_search :alembic: - ${{ steps.generate.outputs.comment }}
+            `comment_default_search` :alembic: - ${{ steps.generate.outputs.comment }}
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: comment
         id: comment_search
@@ -90,7 +90,7 @@ jobs:
           github.event_name == 'pull_request'
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          sha: ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
           state: "${{ steps.assert.outcome }}"
 
   notification:
@@ -106,7 +106,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          persist-credentials: false        
+          persist-credentials: false
       - name: dispatch
         uses: ./pr-trigger
         with:

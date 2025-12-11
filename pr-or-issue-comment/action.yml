@@ -49,16 +49,20 @@ runs:
     - name: generate comment body
       id: body
       shell: bash
+      env:
+        BODY_PATH: ${{ inputs.body_path }}
+        BODY: ${{ inputs.body }}
+        SEARCH_TERM: ${{ inputs.search_term }}
       run: |
         comment_body_file=$(mktemp --tmpdir="$RUNNER_TEMP" "pr-comment-XXXXXXXX")
         echo "comment_body_file=$comment_body_file" >> "$GITHUB_OUTPUT"
         {
-          if [[ -n "${{ inputs.body_path }}" ]]; then
-            cat "${{ inputs.body_path }}"
+          if [[ -n "${BODY_PATH}" ]]; then
+            cat "${BODY_PATH}"
           else
-            printf '%s' "${{ inputs.body }}"
+            printf '%s' "${BODY}"
           fi
-          printf '\n%s\n' "<!-- ${{ inputs.search_term }} -->"
+          printf '\n%s\n' "<!-- ${SEARCH_TERM} -->"
         } >> "$comment_body_file"
     - name: Write Comment
       id: write_comment
