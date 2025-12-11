@@ -49,6 +49,8 @@ jobs:
               - "default-updatecli/**"
 
   # actionlint as of 1.6.26 only supports workflows (not resuable actions)
+  # https://github.com/rhysd/actionlint/pull/366
+  # https://github.com/rhysd/actionlint/issues/350
   actionlint:
     name: actionlint
     runs-on: ubuntu-latest
