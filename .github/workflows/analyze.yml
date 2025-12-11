@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+    types: [opened, synchronize, reopened, edited]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -47,24 +48,6 @@ jobs:
             default_updatecli:
               - "default-updatecli/**"
 
-  commits:
-    name: Conventional Commits
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: committed
-        uses: crate-ci/committed@bb02f309663f9baced8dbd5fdd80c6369ddf3efd # v1.1.8
-        with:
-          args: --no-merge-commit
-
   # actionlint as of 1.6.26 only supports workflows (not resuable actions)
   actionlint:
     name: actionlint
@@ -74,8 +57,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    if: |
-      github.event_name == 'pull_request' &&  needs.changes.outputs.workflows == 'true'
+      checks: write
+    if: needs.changes.outputs.workflows == 'true'
     steps:
       - name: checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -85,7 +68,7 @@ jobs:
         uses: reviewdog/action-actionlint@83e4ed25b168066ad8f62f5afbb29ebd8641d982 # v1.69.1
         with:
           reporter: github-pr-review
-          fail_on_error: true
+          fail_level: error
           tool_name: actionlint
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -97,20 +80,20 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    if: |
-      github.event_name == 'pull_request' &&  needs.changes.outputs.shellscripts == 'true'
+      checks: write
+    if: needs.changes.outputs.shellscripts == 'true'
     steps:
       - name: checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          persist-credentials: false        
+          persist-credentials: false
       - name: shellcheck
         uses: reviewdog/action-shellcheck@4c07458293ac342d477251099501a718ae5ef86e # v1.32.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
-          pattern: |
-            *.sh
+          check_all_files_with_shebangs: "true"
+          fail_level: error
+          github_token: ${{ secrets.github_token }}
 
   dependabot_patch_merge:
     name: merge-untested-actions
@@ -129,7 +112,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          persist-credentials: false        
+          persist-credentials: false
       - name: dispatch
         uses: ./pr-trigger
         with:
