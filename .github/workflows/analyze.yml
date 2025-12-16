@@ -13,14 +13,14 @@ concurrency:
 permissions: {}
 
 jobs:
-  changes:
-    name: Changes
+  reviewdog:
+    name: reviewdog
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
+      pull-requests: write
+      checks: write
     outputs:
-      workflows: ${{ steps.changes.outputs.workflows_any_changed }}
-      shellscripts: ${{ steps.changes.outputs.shellscripts_any_changed }}
       dependabot_merge: ${{ steps.changes.outputs.dependabot_merge_any_changed }}
       default_updatecli: ${{ steps.changes.outputs.default_updatecli_any_changed }}
     steps:
@@ -44,73 +44,27 @@ jobs:
               - "dependabot-merge/**"
             default_updatecli:
               - "default-updatecli/**"
-
-  # actionlint as of 1.6.26 only supports workflows (not resuable actions)
-  # https://github.com/rhysd/actionlint/pull/366
-  # https://github.com/rhysd/actionlint/issues/350
-  actionlint:
-    name: actionlint
-    runs-on: ubuntu-latest
-    needs:
-      - changes
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
-    if: needs.changes.outputs.workflows == 'true'
-    steps:
-      - name: checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
+      # actionlint as of 1.6.26 only supports workflows (not resuable actions)
+      # https://github.com/rhysd/actionlint/pull/366
+      # https://github.com/rhysd/actionlint/issues/350
       - name: actionlint
         uses: reviewdog/action-actionlint@83e4ed25b168066ad8f62f5afbb29ebd8641d982 # v1.69.1
+        if: steps.changes.outputs.workflows_any_changed == 'true'
         with:
           reporter: github-pr-review
           github_token: ${{ secrets.GITHUB_TOKEN }}
           fail_level: error
-          tool_name: actionlint
-
-  shellcheck:
-    name: shellcheck
-    runs-on: ubuntu-latest
-    needs:
-      - changes
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
-    if: needs.changes.outputs.shellscripts == 'true'
-    steps:
-      - name: checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
       - name: shellcheck
         uses: reviewdog/action-shellcheck@4c07458293ac342d477251099501a718ae5ef86e # v1.32.0
+        if: steps.changes.outputs.shellscripts_any_changed == 'true'
         with:
           reporter: github-pr-review
           github_token: ${{ secrets.GITHUB_TOKEN }}
           check_all_files_with_shebangs: "true"
           fail_level: error
-
-  shfmt:
-    name: shfmt
-    runs-on: ubuntu-latest
-    needs:
-      - changes
-    permissions:
-      contents: read
-      pull-requests: write
-      checks: write
-    if: needs.changes.outputs.shellscripts == 'true'
-    steps:
-      - name: checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          persist-credentials: false
       - name: shfmt
         uses: reviewdog/action-shfmt@d8f080930b9be5847b4f97e9f4122b81a82aaeac # v1.0.4
+        if: steps.changes.outputs.shellscripts_any_changed == 'true'
         with:
           fail_on_error: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -120,12 +74,12 @@ jobs:
     name: merge-untested-actions
     runs-on: ubuntu-latest
     needs:
-      - changes
+      - reviewdog
     permissions:
       contents: write
     if: |
-      (needs.changes.outputs.dependabot_merge == 'true' ||
-      needs.changes.outputs.default_updatecli == 'true') &&
+      (needs.reviewdog.outputs.dependabot_merge == 'true' ||
+      needs.reviewdog.outputs.default_updatecli == 'true') &&
       github.event_name == 'pull_request' &&
       github.actor == 'dependabot[bot]'
     steps:
