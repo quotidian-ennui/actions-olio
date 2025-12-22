@@ -1,5 +1,5 @@
 # simple dockerfile for testing purposes
 # @see test-docker-image-builder.yml
 FROM alpine:latest
-RUN apk add --nocache --update curl bash
+RUN apk add --no-cache --update curl bash
 
