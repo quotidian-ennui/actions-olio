@@ -57,12 +57,12 @@ runs:
         comment_body_file=$(mktemp --tmpdir="$RUNNER_TEMP" "pr-comment-XXXXXXXX")
         echo "comment_body_file=$comment_body_file" >> "$GITHUB_OUTPUT"
         {
+          printf '%s\n' "<!-- ${SEARCH_TERM} -->"
           if [[ -n "${BODY_PATH}" ]]; then
             cat "${BODY_PATH}"
           else
             printf '%s' "${BODY}"
           fi
-          printf '\n%s\n' "<!-- ${SEARCH_TERM} -->"
         } >> "$comment_body_file"
     - name: Write Comment
       id: write_comment
