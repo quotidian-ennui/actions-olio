@@ -27,10 +27,14 @@ runs:
     - name: "Run updatecli"
       shell: bash
       run: |
-        configs=$(ls -1 "./updatecli.d"/*.yml)
-        for conf in $configs; do
-          updatecli apply --config "$conf"
-        done
+        if [[ -f "updatecli-compose.yaml" ]]; then
+          updatecli compose apply
+        else
+          configs=$(ls -1 "./updatecli.d"/*.yml)
+          for conf in $configs; do
+            updatecli apply --config "$conf"
+          done
+        fi
       env:
         UPDATECLI_GITHUB_USER: ${{ inputs.github_user }}
         UPDATECLI_GITHUB_EMAIL: ${{ inputs.github_email }}
