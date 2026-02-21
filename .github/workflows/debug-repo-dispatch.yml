@@ -3,7 +3,8 @@ run-name: Debug (${{ github.event.action }})
 
 on:
   repository_dispatch:
-
+    types:
+      - explicit-debug-request
 
 permissions: {}
 
