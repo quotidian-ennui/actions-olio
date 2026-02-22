@@ -36,6 +36,27 @@ In this specific repository; how do you enable required checks (via branch prote
     # prefix: "check_"
 ```
 
+## Inputs
+
+<!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
+
+|    INPUT     |  TYPE  | REQUIRED |         DEFAULT         |                                           DESCRIPTION                                           |
+|--------------|--------|----------|-------------------------|-------------------------------------------------------------------------------------------------|
+|   context    | string |  false   |        `"Check"`        |                     The context for the commit status <br>(default: Check)                      |
+| label_prefix | string |  false   |       `"check_"`        |              The prefix for the label (adds a label if set, default is 'check_')                |
+| pull_request | string |  false   |                         | The pull request number, if not <br>specified we'll try to find it <br>based on the commit SHA  |
+|     sha      | string |   true   |                         |                                         The commit SHA                                          |
+|    state     | string |   true   |                         |           The state for the commit status <br>(error | pending | failure | success)             |
+|    token     | string |  false   | `"${{ github.token }}"` |                        The GitHub token to use for <br>authentication.                          |
+
+<!-- AUTO-DOC-INPUT:END -->
+
+## Outputs
+
+<!-- AUTO-DOC-OUTPUT:START - Do not remove or modify this section -->
+No outputs.
+<!-- AUTO-DOC-OUTPUT:END -->
+
 ## Notes
 
 - Of course it's up to you to assign pretty colours to your labels.

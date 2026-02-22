@@ -1,5 +1,5 @@
 name: Docker Build
-description: Build and optionally publish an image.
+description: Build and optionally publish a docker image.
 inputs:
   cache_from:
     description: "List of external cache sources for build-push-action (e.g., user/app:cache, type=local,src=path/to/dir)"

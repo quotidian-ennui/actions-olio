@@ -27,6 +27,25 @@ Execute updatecli with default configuration
     github_email: 152897211+qe-repo-updater[bot]@users.noreply.github.com
 ```
 
+## Inputs
+
+<!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
+
+|    INPUT     |  TYPE  | REQUIRED |                           DEFAULT                           |                     DESCRIPTION                      |
+|--------------|--------|----------|-------------------------------------------------------------|------------------------------------------------------|
+| github_email | string |  false   | `"152897211+qe-repo-updater[bot]@users.noreply.github.com"` | The github email to use when <br>committing changes  |
+| github_user  | string |  false   |                  `"qe-repo-updater[bot]"`                   | The github user to use when <br>committing changes   |
+|    token     | string |  false   |                   `"${{ github.token }}"`                   | The github token to use when <br>committing changes  |
+|   version    | string |  false   |                        `"v0.113.0"`                         |           The version of updatecli to use            |
+
+<!-- AUTO-DOC-INPUT:END -->
+
+## Outputs
+
+<!-- AUTO-DOC-OUTPUT:START - Do not remove or modify this section -->
+No outputs.
+<!-- AUTO-DOC-OUTPUT:END -->
+
 ## Dependencies
 
 It's a composite action that wraps the following actions:

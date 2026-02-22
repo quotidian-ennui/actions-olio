@@ -30,6 +30,41 @@ Defaults are the values in parentheses
     dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
 ```
 
+## Inputs
+
+<!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
+
+|        INPUT         |  TYPE  | REQUIRED |     DEFAULT     |                                                   DESCRIPTION                                                    |
+|----------------------|--------|----------|-----------------|------------------------------------------------------------------------------------------------------------------|
+|      cache_from      | string |  false   |                 |   List of external cache sources for <br>build-push-action (e.g., user/app:cache, type=local,src=path/to/dir)    |
+|       cache_to       | string |  false   |                 | List of cache export destinations for <br>build-push-action (e.g., user/app:cache, type=local,dest=path/to/dir)  |
+|      dockerfile      | string |   true   |                 |                                              Path to the dockerfile                                              |
+| dockerhub_image_name | string |  false   |                 |                                               Dockerhub image name                                               |
+|   dockerhub_token    | string |  false   |                 |                                                 Dockerhub token                                                  |
+|    dockerhub_user    | string |  false   |                 |                                                Dockerhub username                                                |
+|   ghcr_image_name    | string |  false   |                 |                               Github container registry image name (ghcr.io/x/y/z)                               |
+|      ghcr_token      | string |  false   |                 |                                     Token for the github container registry                                      |
+|      ghcr_user       | string |  false   |                 |                                        Github container registry username                                        |
+|   image_platforms    | string |  false   | `"linux/amd64"` |                                              Platforms to build for                                              |
+|   image_tag_suffix   | string |  false   |                 |                                            Suffix for the image name                                             |
+|     load_locally     | string |  false   |    `"false"`    |                 Whether to load the image locally <br>if you want to use it <br>in a later step                  |
+|    registry_push     | string |  false   |    `"false"`    |                                         Whether to push to the registry                                          |
+
+<!-- AUTO-DOC-INPUT:END -->
+
+## Outputs
+
+<!-- AUTO-DOC-OUTPUT:START - Do not remove or modify this section -->
+
+|   OUTPUT   |  TYPE  |          DESCRIPTION           |
+|------------|--------|--------------------------------|
+| image_tags | string |          Docker tags           |
+|    json    | string | JSON output of tags and labels |
+|   labels   | string |         Docker labels          |
+|  version   | string |      Docker image version      |
+
+<!-- AUTO-DOC-OUTPUT:END -->
+
 ## Notes
 
 - `load_locally` is the equivalent to passing in `--load` to the docker buildx commandline with all its attendant caveats. As a feature I consider it dangerous since there is every chance there will be information leakage if you don't clear up after yourself. I use it so that I can [test the action itself](../.github/workflows/test-docker-image-builder.yml) and I have no images that aren't already public...

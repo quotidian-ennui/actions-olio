@@ -49,6 +49,28 @@ Which results in a client_payload that looks something like:
 
 ```
 
+## Inputs
+
+<!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
+
+|    INPUT     |  TYPE  | REQUIRED |           DEFAULT            |                             DESCRIPTION                             |
+|--------------|--------|----------|------------------------------|---------------------------------------------------------------------|
+|    actor     | string |  false   |   `"${{ github.actor }}"`    | Override github.event.client_payload.base.actor with your own value |
+| event_detail | string |  false   |                              |           Add data as github.event.client_payload.detail            |
+|  event_type  | string |   true   |                              |          Used as the event_type in the <br>dispatch event           |
+|     ref      | string |  false   |                              |  Override github.event.client_payload.base.ref with your own value  |
+|  repository  | string |  false   | `"${{ github.repository }}"` |      Override the default repository you want <br>to send to        |
+|     sha      | string |  false   |                              |  Override github.event.client_payload.base.sha with your own value  |
+|    token     | string |  false   |   `"${{ github.token }}"`    | Override the default token used to <br>create the dispatch event.   |
+
+<!-- AUTO-DOC-INPUT:END -->
+
+## Outputs
+
+<!-- AUTO-DOC-OUTPUT:START - Do not remove or modify this section -->
+No outputs.
+<!-- AUTO-DOC-OUTPUT:END -->
+
 ## Notes
 
 -  I explicitly pass the sha/actor/ref around because the processor of the downstream event has a context where the sha/ref/actor is based on 'last commit on the default branch' which can be be useless contextually.
