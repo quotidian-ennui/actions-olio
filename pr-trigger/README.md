@@ -30,10 +30,10 @@ jobs:
 
 <!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
 
-|   INPUT    |  TYPE  | REQUIRED |         DEFAULT         |                            DESCRIPTION                            |
-|------------|--------|----------|-------------------------|-------------------------------------------------------------------|
-| event_type | string |  false   |     `"pr-trigger"`      |                   The type of event to dispatch                   |
-|   token    | string |  false   | `"${{ github.token }}"` | The github token to use when <br>issuing the repository dispatch  |
+|   INPUT    |  TYPE  | REQUIRED |         DEFAULT         |                         DESCRIPTION                          |
+|------------|--------|----------|-------------------------|--------------------------------------------------------------|
+| event_type | string |  false   |     `"pr-trigger"`      |                The type of event to dispatch                 |
+|   token    | string |  false   | `"${{ github.token }}"` | The github token to use when issuing the repository dispatch |
 
 <!-- AUTO-DOC-INPUT:END -->
 

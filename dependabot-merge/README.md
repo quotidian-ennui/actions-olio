@@ -39,21 +39,25 @@ It's used in this repository to merge dependabot updates to actions & workflows 
 
 <!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
 
-|          INPUT           |  TYPE  | REQUIRED |            DEFAULT             |                                     DESCRIPTION                                     |
-|--------------------------|--------|----------|--------------------------------|-------------------------------------------------------------------------------------|
-|     automerge_level      | string |  false   | `semver-patch"\|"semver-minor` | The semver level to allow automerge <br>up to (default semver-patch|semver-minor).  |
-|      change_filter       | string |  false   |    `".github/workflows/**"`    |                 The filter to use finding source <br>file changes.                  |
-|     filter_separator     | string |  false   |             `"\n"`             |             The separator to use when splitting <br>the change_filter.              |
-|     merge_commentary     | string |  false   |                                |      Additional context to add to generated <br>comments. (defaults to blank)       |
-|       merge_flags        | string |  false   |                                |                        additional merge_flags (e.g. --auto)                         |
-|                          |        |          |                                |                                                                                     |
-|    merge_max_attempts    | string |  false   |             `"2"`              |                           Max Merge Attempts (default 2)                            |
-|                          |        |          |                                |                                                                                     |
-| merge_retry_wait_seconds | string |  false   |             `"60"`             |                        Wait between each retry (default 60s)                        |
-|                          |        |          |                                |                                                                                     |
-|  merge_timeout_seconds   | string |  false   |             `"60"`             |                                Timeout (default 60s)                                |
-|                          |        |          |                                |                                                                                     |
-|          token           | string |  false   |    `"${{ github.token }}"`     |                The github token to use when <br>committing changes                  |
+|          INPUT           |  TYPE  | REQUIRED |            DEFAULT             |                                  DESCRIPTION                                   |
+|--------------------------|--------|----------|--------------------------------|--------------------------------------------------------------------------------|
+|     automerge_level      | string |  false   | `semver-patch"\|"semver-minor` | The semver level to allow automerge up to (default semver-patch|semver-minor). |
+|                          |        |          |                                |                                                                                |
+|      change_filter       | string |  false   |    `".github/workflows/**"`    |                 The filter to use finding source file changes.                 |
+|                          |        |          |                                |                                                                                |
+|     filter_separator     | string |  false   |             `"\n"`             |             The separator to use when splitting the change_filter.             |
+|                          |        |          |                                |                                                                                |
+|     merge_commentary     | string |  false   |                                |      Additional context to add to generated comments. (defaults to blank)      |
+|                          |        |          |                                |                                                                                |
+|       merge_flags        | string |  false   |                                |                      additional merge_flags (e.g. --auto)                      |
+|                          |        |          |                                |                                                                                |
+|    merge_max_attempts    | string |  false   |             `"2"`              |                         Max Merge Attempts (default 2)                         |
+|                          |        |          |                                |                                                                                |
+| merge_retry_wait_seconds | string |  false   |             `"60"`             |                     Wait between each retry (default 60s)                      |
+|                          |        |          |                                |                                                                                |
+|  merge_timeout_seconds   | string |  false   |             `"60"`             |                             Timeout (default 60s)                              |
+|                          |        |          |                                |                                                                                |
+|          token           | string |  false   |    `"${{ github.token }}"`     |                The github token to use when committing changes                 |
 
 <!-- AUTO-DOC-INPUT:END -->
 
