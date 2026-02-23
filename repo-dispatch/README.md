@@ -57,11 +57,11 @@ Which results in a client_payload that looks something like:
 |--------------|--------|----------|------------------------------|---------------------------------------------------------------------|
 |    actor     | string |  false   |   `"${{ github.actor }}"`    | Override github.event.client_payload.base.actor with your own value |
 | event_detail | string |  false   |                              |           Add data as github.event.client_payload.detail            |
-|  event_type  | string |   true   |                              |          Used as the event_type in the <br>dispatch event           |
+|  event_type  | string |   true   |                              |            Used as the event_type in the dispatch event             |
 |     ref      | string |  false   |                              |  Override github.event.client_payload.base.ref with your own value  |
-|  repository  | string |  false   | `"${{ github.repository }}"` |      Override the default repository you want <br>to send to        |
+|  repository  | string |  false   | `"${{ github.repository }}"` |         Override the default repository you want to send to         |
 |     sha      | string |  false   |                              |  Override github.event.client_payload.base.sha with your own value  |
-|    token     | string |  false   |   `"${{ github.token }}"`    | Override the default token used to <br>create the dispatch event.   |
+|    token     | string |  false   |   `"${{ github.token }}"`    |    Override the default token used to create the dispatch event.    |
 
 <!-- AUTO-DOC-INPUT:END -->
 

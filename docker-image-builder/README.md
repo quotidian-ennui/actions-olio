@@ -34,21 +34,21 @@ Defaults are the values in parentheses
 
 <!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
 
-|        INPUT         |  TYPE  | REQUIRED |     DEFAULT     |                                                   DESCRIPTION                                                    |
-|----------------------|--------|----------|-----------------|------------------------------------------------------------------------------------------------------------------|
-|      cache_from      | string |  false   |                 |   List of external cache sources for <br>build-push-action (e.g., user/app:cache, type=local,src=path/to/dir)    |
-|       cache_to       | string |  false   |                 | List of cache export destinations for <br>build-push-action (e.g., user/app:cache, type=local,dest=path/to/dir)  |
-|      dockerfile      | string |   true   |                 |                                              Path to the dockerfile                                              |
-| dockerhub_image_name | string |  false   |                 |                                               Dockerhub image name                                               |
-|   dockerhub_token    | string |  false   |                 |                                                 Dockerhub token                                                  |
-|    dockerhub_user    | string |  false   |                 |                                                Dockerhub username                                                |
-|   ghcr_image_name    | string |  false   |                 |                               Github container registry image name (ghcr.io/x/y/z)                               |
-|      ghcr_token      | string |  false   |                 |                                     Token for the github container registry                                      |
-|      ghcr_user       | string |  false   |                 |                                        Github container registry username                                        |
-|   image_platforms    | string |  false   | `"linux/amd64"` |                                              Platforms to build for                                              |
-|   image_tag_suffix   | string |  false   |                 |                                            Suffix for the image name                                             |
-|     load_locally     | string |  false   |    `"false"`    |                 Whether to load the image locally <br>if you want to use it <br>in a later step                  |
-|    registry_push     | string |  false   |    `"false"`    |                                         Whether to push to the registry                                          |
+|        INPUT         |  TYPE  | REQUIRED |     DEFAULT     |                                                 DESCRIPTION                                                 |
+|----------------------|--------|----------|-----------------|-------------------------------------------------------------------------------------------------------------|
+|      cache_from      | string |  false   |                 |   List of external cache sources for build-push-action (e.g., user/app:cache, type=local,src=path/to/dir)   |
+|       cache_to       | string |  false   |                 | List of cache export destinations for build-push-action (e.g., user/app:cache, type=local,dest=path/to/dir) |
+|      dockerfile      | string |   true   |                 |                                           Path to the dockerfile                                            |
+| dockerhub_image_name | string |  false   |                 |                                            Dockerhub image name                                             |
+|   dockerhub_token    | string |  false   |                 |                                               Dockerhub token                                               |
+|    dockerhub_user    | string |  false   |                 |                                             Dockerhub username                                              |
+|   ghcr_image_name    | string |  false   |                 |                            Github container registry image name (ghcr.io/x/y/z)                             |
+|      ghcr_token      | string |  false   |                 |                                   Token for the github container registry                                   |
+|      ghcr_user       | string |  false   |                 |                                     Github container registry username                                      |
+|   image_platforms    | string |  false   | `"linux/amd64"` |                                           Platforms to build for                                            |
+|   image_tag_suffix   | string |  false   |                 |                                          Suffix for the image name                                          |
+|     load_locally     | string |  false   |    `"false"`    |                   Whether to load the image locally if you want to use it in a later step                   |
+|    registry_push     | string |  false   |    `"false"`    |                                       Whether to push to the registry                                       |
 
 <!-- AUTO-DOC-INPUT:END -->
 
