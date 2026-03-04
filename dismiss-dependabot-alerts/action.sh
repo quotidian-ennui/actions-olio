@@ -47,8 +47,8 @@ dismiss_alert() {
   local affected_package=""
   local alert_id=""
 
-  echo -e "\n## $vuln_id\n" >>"$GITHUB_STEP_SUMMARY"
   vuln_id=$(echo "$dismiss_entry" | jq -r ".key")
+  echo "- $vuln_id" >>"$GITHUB_STEP_SUMMARY"
   mapfile -t packages < <(echo "$dismiss_entry" | jq -r '.value.packages | .[]')
   comment="$(echo "$dismiss_entry" | jq -r ".value.comment")"
   reason="$(echo "$dismiss_entry" | jq -r ".value.reason")"
@@ -64,7 +64,7 @@ dismiss_alert() {
         # it's an intentional substring search.
         #shellcheck disable=SC2076
         if [[ " ${packages[*]} " =~ " ${affected_package} " ]]; then
-          echo "  - Dismissing alert#$alert_id as $reason" >>"$GITHUB_STEP_SUMMARY"
+          echo "  - Dismissing alert $alert_id as $reason" >>"$GITHUB_STEP_SUMMARY"
           gh_params=()
           gh_params+=("-f" "state=dismissed")
           gh_params+=("-f" "dismissed_reason=$reason")
