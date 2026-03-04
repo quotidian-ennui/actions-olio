@@ -2,10 +2,12 @@ name: dismiss-dependabot-alerts
 on:
   workflow_dispatch:
   schedule:
-    - cron: "15 06 * * 0,2,4"
-  pull_request:
+    - cron: "15 06 * * 1"
+  push:
     branches:
       - main
+    paths:
+      - ".github/dismiss-alerts.yml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
