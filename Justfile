@@ -12,7 +12,7 @@ OS_NAME := `uname -o | tr '[:upper:]' '[:lower:]'`
 [doc("Show next version as proposed by git-semver")]
 [script]
 next:
-    #
+    #shellcheck disable=SC2148
     set -eo pipefail
 
     bumpMinor() {
@@ -64,11 +64,11 @@ next:
 [doc('auto-generate tag and release')]
 [script]
 autotag push="localonly":
-    #
+    #shellcheck disable=SC2148
     set -eo pipefail
 
     next="$(just next)"
-    just release $next "{{ push }}"
+    just release "$next" "{{ push }}"
 
 # Since we have that refer to their peers(e.g. dependabot-action-merge refers
 # to pr-or-issue-comment) we rewrite the @main to be @tag, commit, tag and
@@ -76,7 +76,7 @@ autotag push="localonly":
 [doc('Tag & release')]
 [script]
 release tag push="localonly":
-    #
+    #shellcheck disable=SC2148
     set -eo pipefail
 
     switch_reference() {
