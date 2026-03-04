@@ -61,7 +61,7 @@ dismiss_alert() {
       alert_id="$(echo "$vuln" | jq -r ".alert_id")"
       # If the key matches either the CVE number or the GHSA ID then we check
       # the packages to see if we should ignore.
-      if [[ "$vuln_id" == "$cve_id" || $vuln_id == "$ghsa_id" ]]; then
+      if [[ "$vuln_id" == "$cve_id" || "$vuln_id" == "$ghsa_id" ]]; then
         # it's an intentional substring search.
         #shellcheck disable=SC2076
         if [[ " ${packages[*]} " =~ " ${affected_package} " ]]; then
