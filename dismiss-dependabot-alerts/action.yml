@@ -1,0 +1,28 @@
+name: dismiss-dependabot-alerts
+description: |
+  Dismiss dependabot alerts based on a configuration file.
+inputs:
+  token:
+    description: The github token to use when dismissing alerts. You will probably need an app-token
+    required: false
+    default: ${{ github.token }}
+  dismissal_file:
+    description: The file that contains the ignore directives (defaults to .github/dismiss-alerts.yml)
+    required: false
+    default: ""
+branding:
+  color: orange
+  icon: shield
+
+runs:
+  using: composite
+  steps:
+    - name: Dismiss Alerts
+      id: dismiss-alerts
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        ALERT_BASE_URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/security/dependabot
+        ALERT_DISMISSAL_FILE: ${{ inputs.dismissal_file }}
+      run: |
+        bash ${GITHUB_ACTION_PATH}/action.sh
