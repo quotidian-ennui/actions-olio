@@ -17,6 +17,7 @@ VULNS_JSON_REST_JQ='
     "severity": .security_advisory.severity
   }
 '
+VULNS_DISMISS_JQ='"\(.number): \(.state)"'
 
 gh_api() {
   gh api -H "$GH_REST_API_VERSION" -H "$GH_ACCEPT" "$@"
@@ -48,7 +49,7 @@ dismiss_alert() {
   local alert_id=""
 
   vuln_id=$(echo "$dismiss_entry" | jq -r ".key")
-  echo "- $vuln_id" >>"$GITHUB_STEP_SUMMARY"
+  echo "- Checking $vuln_id" >>"$GITHUB_STEP_SUMMARY"
   mapfile -t packages < <(echo "$dismiss_entry" | jq -r '.value.packages | .[]')
   comment="$(echo "$dismiss_entry" | jq -r ".value.comment")"
   reason="$(echo "$dismiss_entry" | jq -r ".value.reason")"
@@ -64,12 +65,12 @@ dismiss_alert() {
         # it's an intentional substring search.
         #shellcheck disable=SC2076
         if [[ " ${packages[*]} " =~ " ${affected_package} " ]]; then
-          echo "  - Dismissing alert $alert_id as $reason" >>"$GITHUB_STEP_SUMMARY"
+          echo "  - $ALERT_BASE_URL/$alert_id dismissed as $reason" >>"$GITHUB_STEP_SUMMARY"
           gh_params=()
           gh_params+=("-f" "state=dismissed")
           gh_params+=("-f" "dismissed_reason=$reason")
           gh_params+=("-f" "dismissed_comment=$comment")
-          gh_api --method PATCH "/repos/:owner/:repo/dependabot/alerts/$alert_id" "${gh_params[@]}"
+          gh_api --method PATCH "/repos/:owner/:repo/dependabot/alerts/$alert_id" "${gh_params[@]}" | jq -r "$VULNS_DISMISS_JQ"
         fi
       fi
     done <<<"$open_vulns"

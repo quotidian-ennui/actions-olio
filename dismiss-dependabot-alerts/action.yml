@@ -10,7 +10,6 @@ inputs:
     description: The file that contains the ignore directives (defaults to .github/dismiss-alerts.yml)
     required: false
     default: ""
-
 branding:
   color: orange
   icon: shield
@@ -23,6 +22,7 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
+        ALERT_BASE_URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/security/dependabot
         ALERT_DISMISSAL_FILE: ${{ inputs.dismissal_file }}
       run: |
         bash ${GITHUB_ACTION_PATH}/action.sh
