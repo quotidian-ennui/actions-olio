@@ -29,7 +29,7 @@ open_vulns_via_rest() {
 
 reason_is_valid() {
   local reason="$1"
-  if [[ ! "${reason}" =~ ^$REASON_LIST$ ]]; then
+  if [[ ! "${reason}" =~ ^($REASON_LIST)$ ]]; then
     return 1
   fi
   return 0
