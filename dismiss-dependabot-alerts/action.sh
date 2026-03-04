@@ -24,7 +24,7 @@ gh_api() {
 }
 
 open_vulns_via_rest() {
-  gh_api "repos/:owner/:repo/dependabot/alerts?state=open" | jq -c "$VULNS_JSON_REST_JQ"
+  gh_api --paginate "repos/:owner/:repo/dependabot/alerts?state=open" | jq -c "$VULNS_JSON_REST_JQ"
 }
 
 reason_is_valid() {

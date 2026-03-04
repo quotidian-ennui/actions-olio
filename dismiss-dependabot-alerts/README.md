@@ -48,7 +48,7 @@ This action allows you have a configuration file that looks like this (and for b
     owner: ${{ github.repository_owner }}
 - name: Dismiss Dependabot Alerts
   id: dismiss_alert
-  uses: quotidian-ennui/actions-olio/dismiss-dependabot-alert@main
+  uses: quotidian-ennui/actions-olio/dismiss-dependabot-alerts@main
   with:
     token: ${{ steps.app-token.outputs.token }}
     dismissal_file: "/path/to/file"
