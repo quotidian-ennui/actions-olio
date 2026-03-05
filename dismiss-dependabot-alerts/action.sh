@@ -19,6 +19,21 @@ VULNS_JSON_REST_JQ='
 '
 VULNS_DISMISS_JQ='"\(.number): \(.state)"'
 
+gh_summary() {
+  echo "$@" >>"$GITHUB_STEP_SUMMARY"
+}
+
+has_pre_reqs() {
+  local rc=0
+  for tool in "$@"; do
+    if ! command -v "$tool" >/dev/null; then
+      gh_summary "- $tool : not on path"
+      rc=1
+    fi
+  done
+  return $rc
+}
+
 gh_api() {
   gh api -H "$GH_REST_API_VERSION" -H "$GH_ACCEPT" "$@"
 }
@@ -49,7 +64,7 @@ dismiss_alert() {
   local alert_id=""
 
   vuln_id=$(echo "$dismiss_entry" | jq -r ".key")
-  echo "- Checking $vuln_id" >>"$GITHUB_STEP_SUMMARY"
+  gh_summary "- Checking $vuln_id"
   mapfile -t packages < <(echo "$dismiss_entry" | jq -r '.value.packages | .[]')
   comment="$(echo "$dismiss_entry" | jq -r ".value.comment")"
   reason="$(echo "$dismiss_entry" | jq -r ".value.reason")"
@@ -65,7 +80,7 @@ dismiss_alert() {
         # it's an intentional substring search.
         #shellcheck disable=SC2076
         if [[ " ${packages[*]} " =~ " ${affected_package} " ]]; then
-          echo "  - $ALERT_BASE_URL/$alert_id dismissed as $reason" >>"$GITHUB_STEP_SUMMARY"
+          gh_summary "  - $ALERT_BASE_URL/$alert_id dismissed as $reason"
           gh_params=()
           gh_params+=("-f" "state=dismissed")
           gh_params+=("-f" "dismissed_reason=$reason")
@@ -75,7 +90,7 @@ dismiss_alert() {
       fi
     done <<<"$open_vulns"
   else
-    echo "- $vuln_id does not contain a valid reason [$reason]; skip" >>"$GITHUB_STEP_SUMMARY"
+    gh_summary "- $vuln_id does not contain a valid reason [$reason]; skip"
   fi
 }
 
@@ -88,17 +103,20 @@ dismiss_each_alert() {
   done
 }
 
+gh_summary -e "# Dismiss Dependabot Alerts\n"
 GIT_ROOT="$(git rev-parse --show-toplevel)"
 IGNORE_FILE="${ALERT_DISMISSAL_FILE:-$GIT_ROOT/.github/dismiss-alerts.yml}"
-
-echo -e "# Dismiss Dependabot Alerts\n" >>"$GITHUB_STEP_SUMMARY"
+if ! has_pre_reqs gh git yq jq; then
+  gh_summary "> Pre-requisite tools not available"
+  exit 1
+fi
 if [[ -f "$IGNORE_FILE" ]]; then
   OPEN_VULNS="$(open_vulns_via_rest)"
   if [[ -n "$OPEN_VULNS" ]]; then
     dismiss_each_alert "$IGNORE_FILE" "$OPEN_VULNS"
   else
-    echo "- No Open Alerts" >>"$GITHUB_STEP_SUMMARY"
+    gh_summary "- No Open Alerts"
   fi
 else
-  echo "> No Configuration file $IGNORE_FILE" >>"$GITHUB_STEP_SUMMARY"
+  gh_summary "> No Configuration file $IGNORE_FILE"
 fi

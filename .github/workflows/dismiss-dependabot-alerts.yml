@@ -8,6 +8,9 @@ on:
       - main
     paths:
       - ".github/dismiss-alerts.yml"
+      - ".github/workflows/dismiss-dependabot-alerts.yml"
+      - "dismiss-dependabot-alerts/action.yml"
+      - "dismiss-dependabot-alerts/action.sh"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
