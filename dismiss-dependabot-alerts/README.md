@@ -56,7 +56,20 @@ This action allows you have a configuration file that looks like this (and for b
 
 ## Inputs
 
+<!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
+
+|     INPUT      |  TYPE  | REQUIRED |         DEFAULT         |                                      DESCRIPTION                                      |
+|----------------|--------|----------|-------------------------|---------------------------------------------------------------------------------------|
+| dismissal_file | string |  false   |                         | The file that contains the ignore directives (defaults to .github/dismiss-alerts.yml) |
+|     token      | string |  false   | `"${{ github.token }}"` |  The github token to use when dismissing alerts. You will probably need an app-token  |
+
+<!-- AUTO-DOC-INPUT:END -->
+
 ## Outputs
+
+<!-- AUTO-DOC-OUTPUT:START - Do not remove or modify this section -->
+No outputs.
+<!-- AUTO-DOC-OUTPUT:END -->
 
 ## Dependencies
 
