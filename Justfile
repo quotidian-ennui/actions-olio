@@ -2,8 +2,6 @@ set positional-arguments := true
 set unstable := true
 set script-interpreter := ['/usr/bin/env', 'bash']
 
-OS_NAME := `uname -o | tr '[:upper:]' '[:lower:]'`
-
 # show recipes
 [private]
 @help:
@@ -15,12 +13,15 @@ next:
     #shellcheck disable=SC2148
     set -eo pipefail
 
+    VERSION_REGEXP_MAJOR='s#^([0-9]+)\.([0-9]+)\.([0-9]+).*$#\1#'
+    VERSION_REGEXP_MINOR='s#^([0-9]+)\.([0-9]+)\.([0-9]+).*$#\2#'
+    VERSION_REGEXP_PATCH='s#^([0-9]+)\.([0-9]+)\.([0-9]+).*$#\3#'
     bumpMinor() {
       local version="$1"
       local majorVersion
       local minorVersion
-      majorVersion=$(echo "$version " | sed -E 's#^([0-9]+)\.([0-9]+)\.([0-9]+).*$#\1#')
-      minorVersion=$(echo "$version " | sed -E 's#^([0-9]+)\.([0-9]+)\.([0-9]+).*$#\2#')
+      majorVersion=$(echo "$version " | sed -E "$VERSION_REGEXP_MAJOR")
+      minorVersion=$(echo "$version " | sed -E "$VERSION_REGEXP_MINOR")
       minorVersion=$((minorVersion + 1))
       echo "$majorVersion.$minorVersion.0"
     }
@@ -31,16 +32,16 @@ next:
       local minorVersion
       local patchVersion
 
-      majorVersion=$(echo "$version" | sed -E 's#^([0-9]+)\.([0-9]+)\.([0-9]+).*$#\1#')
-      minorVersion=$(echo "$version" | sed -E 's#^([0-9]+)\.([0-9]+)\.([0-9]+).*$#\2#')
-      patchVersion=$(echo "$version" | sed -E 's#^([0-9]+)\.([0-9]+)\.([0-9]+).*$#\3#')
+      majorVersion=$(echo "$version" | sed -E "$VERSION_REGEXP_MAJOR")
+      minorVersion=$(echo "$version" | sed -E "$VERSION_REGEXP_MINOR")
+      patchVersion=$(echo "$version" | sed -E "$VERSION_REGEXP_PATCH")
       patchVersion=$((patchVersion + 1))
       echo "$majorVersion.$minorVersion.$patchVersion"
     }
 
     lastTag=$(git tag -l | sort -rV | head -n1)
     lastTaggedVersion=${lastTag#"v"}
-    majorVersion=$(echo "$lastTaggedVersion" | sed -E 's#^([0-9]+)\.([0-9]+)\.([0-9]+).*$#\1#')
+    majorVersion=$(echo "$lastTaggedVersion" | sed -E "$VERSION_REGEXP_MAJOR")
     semver_arg=""
     if [[ -z "$majorVersion" || "$majorVersion" = "0" ]]; then
       semver_arg="--stable=false"
@@ -51,7 +52,7 @@ next:
     computedVersion=$(git semver next "$semver_arg" 2>/dev/null || true)
     if [[ -n "$computedVersion" ]]; then
       if [[ "$computedVersion" == "$lastTaggedVersion" ]]; then
-        bumpMinor "$lastTaggedVersion"
+        bumpPatch "$lastTaggedVersion"
       else
         echo "$computedVersion"
       fi
@@ -90,7 +91,18 @@ release tag push="localonly":
       git commit -a -m "chore(release): update action references to ${to}"
     }
 
-    git diff --quiet || (echo "--> git is dirty" && exit 1)
+    check_uptodate() {
+      default_branch=$(git remote show "origin" | grep 'HEAD branch' | cut -d' ' -f5)
+      remote_hash=$(git ls-remote origin "refs/heads/$default_branch" | cut -f1)
+      local_hash=$(git rev-parse "$(git branch --show-current)")
+      if [[ "$remote_hash" != "$local_hash" ]]; then
+        echo "⚠️ Remote hash differs, are we up to date?"
+        exit 1
+      fi
+    }
+
+    git diff --quiet || (echo "⚠️ git is dirty" && exit 1)
+    check_uptodate
     push="{{ push }}"
     next=$(echo "{{ tag }}" | sed -E 's/^v?/v/')
     switch_reference "main" "$next"
