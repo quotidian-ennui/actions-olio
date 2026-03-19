@@ -26,16 +26,11 @@ jobs:
       contents: read
 
     steps:
-      - name: Setup autodoc
-        uses: action-stars/install-tool-from-github-release@1fa61c3bea52eca3bcdb1f5c961a3b113fe7fa54 # v0.2.6
+      - name: Install auto-doc
+        uses: taiki-e/install-action@e24b8b7a939c6a537188f34a4163cb153dd85cf6 # v2.69.1
         with:
-          github_token: ${{ github.token }}
-          owner: tj-actions
-          repository: auto-doc
-          arch_amd64: x86_64
-          os_linux: Linux
-          check_command: auto-doc --help
-          version: latest
+          tool: auto-doc
+          fallback: none
 
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -55,11 +50,11 @@ jobs:
         run: |
           #!/usr/bin/env bash
 
-          ACTIONS="$(find . -name action.yml)"
-          while IFS= read -r action; do
+          mapfile -t action_files < <(find "." -type f -name "action.yml")
+          for action in "${action_files[@]}"; do
             readme="$(dirname "$action")/README.md"
             auto-doc --colMaxWords 100 --filename "$action" --output "$readme"
-          done <<<"$ACTIONS"
+          done
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
