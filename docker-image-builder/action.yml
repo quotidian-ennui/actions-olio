@@ -44,6 +44,11 @@ inputs:
   dockerhub_token:
     description: Dockerhub token
     required: false
+  enable_build_record:
+    description: Docker Build Record Upload to build artifacts
+    required: false
+    default: "false"
+
 outputs:
   image_tags:
     description: Docker tags
@@ -103,6 +108,8 @@ runs:
           type=raw,value=latest,enable={{is_default_branch}}
     - name: Build Image
       uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+      env:
+        DOCKER_BUILD_RECORD_UPLOAD: ${{ inputs.enable_build_record }}
       with:
         # no-cache: true
         builder: ${{ steps.buildx.outputs.name }}

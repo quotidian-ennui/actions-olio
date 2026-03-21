@@ -22,6 +22,9 @@ permissions: {}
 
 jobs:
   test-docker-image-builder:
+    defaults:
+      run:
+        shell: bash
     name: test-docker-image-builder
     runs-on: ubuntu-latest
     permissions:
@@ -46,14 +49,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          persist-credentials: false        
+          persist-credentials: false
       - name: Update Status
         id: check_pending
         uses: ./commit-status-and-label
         if: github.event_name == 'pull_request'
         with:
           token: ${{ github.token }}
-          sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          sha: ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
           state: "pending"
       - name: docker-image-builder
         id: docker
@@ -105,8 +108,10 @@ jobs:
         env:
           DOCKER_TAGS: ${{ steps.docker.outputs.image_tags }}
         run: |
-          for image in $DOCKER_TAGS; do
-            docker rmi "$image"
+          mapfile -t image_tags <<< "$DOCKER_TAGS"
+          for image in "${image_tags[@]}"; do
+            echo "Deleting $image"
+            docker rmi "$image" || true
           done
       - name: Check Status
         id: check_outcome
@@ -116,7 +121,7 @@ jobs:
         uses: ./commit-status-and-label
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
+          sha: ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
           state: "${{ steps.docker_run.outcome }}"
 
   notification:
@@ -132,7 +137,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          persist-credentials: false        
+          persist-credentials: false
       - name: dispatch
         uses: ./pr-trigger
         with:
