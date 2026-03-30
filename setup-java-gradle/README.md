@@ -39,6 +39,13 @@ beforeSettings { settings ->
 
 <!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
 
+|          INPUT          |  TYPE  | REQUIRED |   DEFAULT   |            DESCRIPTION             |
+|-------------------------|--------|----------|-------------|------------------------------------|
+|      distribution       | string |  false   | `"temurin"` |      Which Java Distribution       |
+| gradle-dependency-graph | string |  false   |  `"false"`  | Enable the gradle dependency graph |
+|      java-version       | string |  false   |   `"21"`    |         Which Java Version         |
+|        writeable        | string |  false   |  `"false"`  |    Treat the cache as writeable    |
+
 <!-- AUTO-DOC-INPUT:END -->
 
 ## Outputs
