@@ -1,0 +1,32 @@
+name: gradle-cache
+description: Naively cache gradle directories
+
+inputs:
+  writeable:
+    description: Treat the cache as writeable
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: ReadOnly Cache
+      uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      if: inputs.writeable != 'yes' && inputs.writeable !='true'
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties','buildSrc/**/Versions.kt', 'buildSrc/**/Dependencies.kt', 'gradle/*.versions.toml', '**/versions.properties') }}
+        restore-keys: ${{ runner.os }}-gradle-
+
+    - name: Cache
+      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      id: rw-plugin-cache
+      if: inputs.writeable == 'yes' || inputs.writeable =='true'
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties','buildSrc/**/Versions.kt', 'buildSrc/**/Dependencies.kt', 'gradle/*.versions.toml', '**/versions.properties') }}
+        restore-keys: ${{ runner.os }}-gradle-
