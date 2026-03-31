@@ -5,7 +5,6 @@ beforeSettings { settings ->
     downloadedResources.removeUnusedEntriesAfterDays = 20
     createdResources.removeUnusedEntriesAfterDays = 3
     buildCache.removeUnusedEntriesAfterDays = 3
-    daemonLogs.removeUnusedEntriesAfterDays = 1
     cleanup = Cleanup.ALWAYS
   }
 }
