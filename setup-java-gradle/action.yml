@@ -43,11 +43,18 @@ runs:
         DEPENDENCY_GRAPH_REQUEST: ${{ inputs.gradle-dependency-graph }}
       run: |
         create_graph() {
-          if [[ ("$CACHE_WRITEABLE" == "true" || "$CACHE_WRITEABLE" == "yes") && "$DEPENDENCY_GRAPH_REQUEST" == "automatic" ]]; then
-            echo "generate-and-submit"
-          else
-            echo "$DEPENDENCY_GRAPH_REQUEST"
-          fi
+          case "$DEPENDENCY_GRAPH_REQUEST" in
+            automatic)
+              if [[ "$CACHE_WRITEABLE" == "true" || "$CACHE_WRITEABLE" == "yes" ]]; then
+                echo "generate-and-submit"
+              else
+                echo "disabled"
+              fi
+              ;;
+            *)
+              echo "$DEPENDENCY_GRAPH_REQUEST"
+              ;;
+          esac
         }
         echo "dependency_submission=$(create_graph)" >>"$GITHUB_OUTPUT"
 
