@@ -39,12 +39,14 @@ beforeSettings { settings ->
 
 <!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
 
-|          INPUT          |  TYPE  | REQUIRED |   DEFAULT   |            DESCRIPTION             |
-|-------------------------|--------|----------|-------------|------------------------------------|
-|      distribution       | string |  false   | `"temurin"` |      Which Java Distribution       |
-| gradle-dependency-graph | string |  false   |  `"false"`  | Enable the gradle dependency graph |
-|      java-version       | string |  false   |   `"21"`    |         Which Java Version         |
-|        writeable        | string |  false   |  `"false"`  |    Treat the cache as writeable    |
+|              INPUT               |  TYPE  | REQUIRED |   DEFAULT    |                                                                                                   DESCRIPTION                                                                                                   |
+|----------------------------------|--------|----------|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|           distribution           | string |  false   | `"temurin"`  |                                                                                             Which Java Distribution                                                                                             |
+|     gradle-dependency-graph      | string |  false   | `"disabled"` |                               The gradle action dependency graph value (disabled,generate,generate-and-submit,generate-submit-and-upload,generate-and-upload,download-and-submit)                               |
+|        gradle-job-summary        | string |  false   |  `"always"`  |                                      Specifies when a Job Summary should be inluded in the action results. Valid values are 'never', 'always' (default), and 'on-failure'.                                      |
+| gradle-job-summary-as-pr-comment | string |  false   |  `"never"`   | Specifies when each Job Summary should be added as a PR comment. Valid values are 'never' (default), 'always', and 'on-failure'. No action will be taken if the workflow was not triggered from a pull request. |
+|           java-version           | string |  false   |    `"21"`    |                                                                                               Which Java Version                                                                                                |
+|            writeable             | string |  false   |  `"false"`   |                                                                                          Treat the cache as writeable                                                                                           |
 
 <!-- AUTO-DOC-INPUT:END -->
 
