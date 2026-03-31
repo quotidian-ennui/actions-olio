@@ -62,6 +62,18 @@ next:
       bumpPatch "$closestTagVersion"
     fi
 
+[doc('run autodoc')]
+[script]
+autodoc:
+    #shellcheck disable=SC2148
+    set -eo pipefail
+
+    mapfile -t action_files < <(find "." -type f -name "action.yml")
+    for action in "${action_files[@]}"; do
+      readme="$(dirname "$action")/README.md"
+      auto-doc --colMaxWords 100 --filename "$action" --output "$readme"
+    done
+
 [doc('auto-generate tag and release')]
 [script]
 autotag push="localonly":
