@@ -1,0 +1,11 @@
+beforeSettings { settings ->
+  settings.caches {
+    releasedWrappers.removeUnusedEntriesAfterDays = 5
+    snapshotWrappers.removeUnusedEntriesAfterDays = 5
+    downloadedResources.removeUnusedEntriesAfterDays = 20
+    createdResources.removeUnusedEntriesAfterDays = 3
+    buildCache.removeUnusedEntriesAfterDays = 3
+    daemonLogs.removeUnusedEntriesAfterDays = 1
+    cleanup = Cleanup.ALWAYS
+  }
+}
