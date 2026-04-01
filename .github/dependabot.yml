@@ -22,6 +22,7 @@ updates:
       - "pr-trigger"
       - "repo-dispatch"
       - "dismiss-dependabot-alerts"
+      - "setup-java-gradle"
     open-pull-requests-limit: 20
     schedule:
       interval: "daily"
