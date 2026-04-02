@@ -1,0 +1,76 @@
+name: test-setup-java
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "setup-java-gradle/**"
+      - ".github/workflows/test-setup-java.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "setup-java-gradle/**"
+      - ".github/workflows/test-setup-java.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  test-setup-java:
+    name: test-setup-java
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      statuses: write
+    steps:
+      - name: step-security/harden-runner
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: setup-java
+        id: setup-java
+        uses: ./setup-java-gradle
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          gradle-dependency-graph: disabled
+          gradle-job-summary: on-failure
+          writeable: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+      - name: gradle-build
+        id: gradle-build
+        shell: bash
+        working-directory: ./setup-java-gradle/test
+        run: |
+          ./gradlew check
+
+  notification:
+    name: notification
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - test-setup-java
+    if: |
+      github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: dispatch
+        uses: ./pr-trigger
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event_type: "pr-issue-comment-test-success"
