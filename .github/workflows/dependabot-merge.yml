@@ -5,6 +5,7 @@ on:
     types:
       - pr-trigger
       - pr-issue-comment-test-success
+      - pr-setup-java-gradle-test-success
       - pr-commit-status-test-success
       - pr-docker-image-builder-test-success
       - pr-repo-dispatch-test-success
@@ -24,7 +25,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          persist-credentials: false        
+          persist-credentials: false
           ref: ${{ github.event.client_payload.base.ref }}
           fetch-depth: 0
       - name: "Prepare"
@@ -50,6 +51,11 @@ jobs:
               echo 'change_filter=repo-dispatch/**' >> "$GITHUB_OUTPUT"
               echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
               echo 'merge_context=Repo Dispatch tests passed' >> "$GITHUB_OUTPUT"
+              ;;
+            pr-setup-java-gradle-test-success)
+              echo 'change_filter=setup-java-gradle/**' >> "$GITHUB_OUTPUT"
+              echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
+              echo 'merge_context=setup-java-gradle tests passed' >> "$GITHUB_OUTPUT"
               ;;
             pr-untested-actions)
               echo 'change_filter=dependabot-merge/**,default-updatecli/**,generate-dependabot-config/**' >> "$GITHUB_OUTPUT"
