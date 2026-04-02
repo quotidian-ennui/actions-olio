@@ -70,4 +70,4 @@ jobs:
         uses: ./pr-trigger
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          event_type: "pr-issue-comment-test-success"
+          event_type: "pr-setup-java-gradle-test-success"
