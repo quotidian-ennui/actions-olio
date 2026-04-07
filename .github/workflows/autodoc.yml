@@ -27,10 +27,9 @@ jobs:
 
     steps:
       - name: Install auto-doc
-        uses: taiki-e/install-action@94cb46f8d6e437890146ffbd78a778b78e623fb2 # v2.74.0
+        uses: jaxxstorm/action-install-gh-release@25e24d2d23ae098373794ef1d6faecb48ee52da8 # v3.0.0
         with:
-          tool: auto-doc
-          fallback: none
+          repo: tj-actions/auto-doc
 
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -51,10 +50,14 @@ jobs:
           #!/usr/bin/env bash
 
           mapfile -t action_files < <(find "." -type f -name "action.yml")
+          echo "::group::auto-doc generator"
           for action in "${action_files[@]}"; do
-            readme="$(dirname "$action")/README.md"
+            base="$(dirname "$action")"
+            readme="$base/README.md"
+            echo "Generating documentation for $base"
             auto-doc --colMaxWords 100 --filename "$action" --output "$readme"
           done
+          echo "::endgroup::"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
