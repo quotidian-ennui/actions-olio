@@ -46,7 +46,7 @@ In this specific repository; how do you enable required checks (via branch prote
 | label_prefix | string |  false   |       `"check_"`        |          The prefix for the label (adds a label if set, default is 'check_')           |
 | pull_request | string |  false   |                         | The pull request number, if not specified we'll try to find it based on the commit SHA |
 |     sha      | string |   true   |                         |                                     The commit SHA                                     |
-|    state     | string |   true   |                         |         The state for the commit status (error | pending | failure | success)          |
+|    state     | string |   true   |                         |     The state for the commit status (valid values: error,pending,failure,success)      |
 |    token     | string |  false   | `"${{ github.token }}"` |                      The GitHub token to use for authentication.                       |
 
 <!-- AUTO-DOC-INPUT:END -->
