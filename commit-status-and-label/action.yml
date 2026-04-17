@@ -6,7 +6,7 @@ inputs:
     description: "The commit SHA"
     required: true
   state:
-    description: "The state for the commit status (error | pending | failure | success)"
+    description: "The state for the commit status (valid values: error,pending,failure,success)"
     required: true
   pull_request:
     description: "The pull request number, if not specified we'll try to find it based on the commit SHA"
@@ -14,20 +14,19 @@ inputs:
   token:
     description: "The GitHub token to use for authentication."
     required: false
-    default: '${{ github.token }}'
+    default: "${{ github.token }}"
   context:
     description: "The context for the commit status (default: Check)"
     required: false
-    default: 'Check'
+    default: "Check"
   label_prefix:
     description: "The prefix for the label (adds a label if set, default is 'check_')"
     required: false
-    default: 'check_'
+    default: "check_"
 
 runs:
   using: composite
   steps:
-
     - name: Find associated PR
       uses: jwalton/gh-find-current-pr@f3d61b485d2801773f7a07b2aaa3306bd8f8e653 # v1.3.5
       id: findpr
