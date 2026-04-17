@@ -32,7 +32,9 @@ This action allows you have a configuration file that looks like this (and for b
 
 ## Usage
 
-- Requires you to have `dependabot-alerts: write` which means you will end up using a custom app since you can never get the dependabot_alert scope via a normal workflow token :
+- Requires you to have __Dependabot Alerts: read and write__ which means you will end up using a custom app since you can never get the dependabot_alert scope via a normal workflow token. In your app settings in repository permissions it's this one:
+
+![app-permissions](./dependabot-alerts.png)
 
 ```action
 - name: Checkout
