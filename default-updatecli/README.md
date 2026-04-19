@@ -36,7 +36,7 @@ Execute updatecli with default configuration
 | github_email | string |  false   | `"152897211+qe-repo-updater[bot]@users.noreply.github.com"` | The github email to use when committing changes |
 | github_user  | string |  false   |                  `"qe-repo-updater[bot]"`                   | The github user to use when committing changes  |
 |    token     | string |  false   |                   `"${{ github.token }}"`                   | The github token to use when committing changes |
-|   version    | string |  false   |                        `"v0.116.0"`                         |         The version of updatecli to use         |
+|   version    | string |  false   |                        `"v0.116.2"`                         |         The version of updatecli to use         |
 
 <!-- AUTO-DOC-INPUT:END -->
 
