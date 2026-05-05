@@ -2,11 +2,19 @@ name: Docker Build
 description: Build and optionally publish a docker image.
 inputs:
   cache_from:
-    description: "List of external cache sources for build-push-action (e.g., user/app:cache, type=local,src=path/to/dir)"
+    description: "List of external cache sources for build-push-action (e.g., type=gha), overrides automatic setting"
     required: false
   cache_to:
-    description: "List of cache export destinations for build-push-action (e.g., user/app:cache, type=local,dest=path/to/dir)"
+    description: "List of cache export destinations for build-push-action (e.g., type=gha,mode=max), overrides automatic setting"
     required: false
+  caching:
+    description: "Automagically make a choice about caching"
+    required: false
+    default: "automatic"
+  context:
+    description: "The Context to pass through to docker"
+    required: false
+    default: "."
   registry_push:
     description: Whether to push to the registry
     required: false
@@ -66,11 +74,37 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Bootstrap
+      id: bootstrap
+      shell: bash
+      env:
+        CACHE_MODE: ${{ inputs.caching }}
+        CACHE_TO: ${{ inputs.cache_to }}
+        CACHE_FROM: ${{ inputs.cache_from }}
+      run: |
+        if [[ "$CACHE_TO" == "" && "$CACHE_FROM" == "" ]]; then
+          if [[ "$CACHE_MODE" == "automatic" ]]; then
+            printf "cache_to=%s\n" "type=gha" | tee -a "$GITHUB_OUTPUT"
+            printf "cache_from=%s\n" "type=gha,mode=max" | tee -a "$GITHUB_OUTPUT"
+            printf "caching=%s\n" "true" | tee -a "$GITHUB_OUTPUT"
+          else
+            printf "caching=%s\n" "false" | tee -a "$GITHUB_OUTPUT"
+          fi
+        else
+          printf "cache_to=%s\n" "$CACHE_TO" | tee -a "$GITHUB_OUTPUT"
+          printf "cache_from=%s\n" "$CACHE_FROM" | tee -a "$GITHUB_OUTPUT"
+          printf "caching=%s\n" "true" | tee -a "$GITHUB_OUTPUT"
+        fi
+
     - name: Set up QEMU
       uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
+      with:
+        cache-image: ${{ steps.bootstrap.outputs.caching == 'true' }}
     - name: Set up Docker Buildx
       id: buildx
       uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+      with:
+        cache-binary: ${{ steps.bootstrap.outputs.caching == 'true' }}
     - name: Login to DockerHub
       uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
       if: |
@@ -106,14 +140,15 @@ runs:
           type=semver,pattern={{major}}
           type=ref,event=pr,priority=100
           type=raw,value=latest,enable={{is_default_branch}}
-    - name: Build Image
+    - name: Build Image (with caching)
+      if: ${{ steps.bootstrap.outputs.caching == 'true' }}
+      id: build_cache
       uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
       env:
         DOCKER_BUILD_RECORD_UPLOAD: ${{ inputs.enable_build_record }}
       with:
-        # no-cache: true
         builder: ${{ steps.buildx.outputs.name }}
-        context: .
+        context: ${{ inputs.context }}
         file: ${{ inputs.dockerfile }}
         platforms: ${{ inputs.image_platforms }}
         push: ${{ inputs.registry_push }}
@@ -121,5 +156,22 @@ runs:
         tags: ${{ steps.docker_meta.outputs.tags }}
         labels: ${{ steps.docker_meta.outputs.labels }}
         provenance: false
-        cache-from: ${{ inputs.cache_from }}
-        cache-to: ${{ inputs.cache_to }}
+        cache-from: ${{ steps.bootstrap.outputs.cache_from }}
+        cache-to: ${{ steps.bootstrap.outputs.cache_to }}
+    - name: Build Image (no-cache)
+      id: build_nocache
+      uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+      if: ${{ steps.bootstrap.outputs.caching != 'true' }}
+      env:
+        DOCKER_BUILD_RECORD_UPLOAD: ${{ inputs.enable_build_record }}
+      with:
+        no-cache: true
+        builder: ${{ steps.buildx.outputs.name }}
+        context: ${{ inputs.context }}
+        file: ${{ inputs.dockerfile }}
+        platforms: ${{ inputs.image_platforms }}
+        push: ${{ inputs.registry_push }}
+        load: ${{ inputs.load_locally }}
+        tags: ${{ steps.docker_meta.outputs.tags }}
+        labels: ${{ steps.docker_meta.outputs.labels }}
+        provenance: false

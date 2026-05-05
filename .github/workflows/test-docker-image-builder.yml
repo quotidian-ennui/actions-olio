@@ -32,6 +32,25 @@ jobs:
       pull-requests: write
       issues: write
       statuses: write
+    strategy:
+      matrix:
+        docker_target: ["cache", "nocache", "automatic"]
+        include:
+          - docker_target: cache
+            docker_image_name: ${{ github.repository_owner }}/test-docker-image-builder-cache
+            caching: enabled
+            cache_from: type=gha
+            cache_to: type=gha,mode=max
+          - docker_target: nocache
+            docker_image_name: ${{ github.repository_owner }}/test-docker-image-builder-nocache
+            caching: disabled
+            cache_from:
+            cache_to:
+          - docker_target: automatic
+            docker_image_name: ${{ github.repository_owner }}/test-docker-image-builder-auto
+            caching: automatic
+            cache_from:
+            cache_to:
     steps:
       - name: step-security/harden-runner
         uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
@@ -50,14 +69,6 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - name: Update Status
-        id: check_pending
-        uses: ./commit-status-and-label
-        if: github.event_name == 'pull_request'
-        with:
-          token: ${{ github.token }}
-          sha: ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
-          state: "pending"
       - name: docker-image-builder
         id: docker
         uses: ./docker-image-builder
@@ -66,7 +77,10 @@ jobs:
           load_locally: true
           dockerfile: docker-image-builder/Dockerfile.test
           image_platforms: linux/amd64
-          dockerhub_image_name: ${{ github.repository_owner }}/test-docker-image-builder
+          dockerhub_image_name: ${{ matrix.docker_image_name }}
+          caching: ${{ matrix.caching }}
+          cache_from: ${{ matrix.cache_from }}
+          cache_to: ${{ matrix.cache_to }}
       - name: check outputs
         id: check_outputs
         env:
@@ -113,16 +127,6 @@ jobs:
             echo "Deleting $image"
             docker rmi "$image" || true
           done
-      - name: Check Status
-        id: check_outcome
-        if: |
-          (success() || failure()) &&
-          github.event_name == 'pull_request'
-        uses: ./commit-status-and-label
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          sha: ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
-          state: "${{ steps.docker_run.outcome }}"
 
   notification:
     name: notification
