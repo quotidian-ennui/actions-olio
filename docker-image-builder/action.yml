@@ -56,6 +56,10 @@ inputs:
     description: Docker Build Record Upload to build artifacts
     required: false
     default: "false"
+  enable_build_summary:
+    description: Emit a docker builder summary
+    required: false
+    default: "true"
 
 outputs:
   image_tags:
@@ -146,6 +150,7 @@ runs:
       uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
       env:
         DOCKER_BUILD_RECORD_UPLOAD: ${{ inputs.enable_build_record }}
+        DOCKER_BUILD_SUMMARY: ${{ inputs.enable_build_summary }}
       with:
         builder: ${{ steps.buildx.outputs.name }}
         context: ${{ inputs.context }}
@@ -164,6 +169,7 @@ runs:
       if: ${{ steps.bootstrap.outputs.caching != 'true' }}
       env:
         DOCKER_BUILD_RECORD_UPLOAD: ${{ inputs.enable_build_record }}
+        DOCKER_BUILD_SUMMARY: ${{ inputs.enable_build_summary }}
       with:
         no-cache: true
         builder: ${{ steps.buildx.outputs.name }}

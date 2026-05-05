@@ -17,11 +17,7 @@ Defaults are the values in parentheses
 - name: docker-build-push
   uses: quotidian-ennui/actions-olio/docker-image-builder@main
   with:
-    registry_push: true | (false)
-    load_locally: (false) | true
     dockerfile: /path/to/Dockerfile
-    image_tag_suffix: suffix to add to the version if any ('')
-    image_platforms: platforms to build for (linux/amd64)
     ghcr_image_name: your image name on ghcr.io
     dockerhub_image_name: your image on hub.docker.com
     ghcr_user: ${{ github.repository_owner }}

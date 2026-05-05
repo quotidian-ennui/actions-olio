@@ -34,19 +34,19 @@ jobs:
       statuses: write
     strategy:
       matrix:
-        docker_target: ["cache", "nocache", "automatic"]
+        docker_target: ["explict-cache", "nocache", "autocache"]
         include:
-          - docker_target: cache
+          - docker_target: explict-cache
             docker_image_name: ${{ github.repository_owner }}/test-docker-image-builder-cache
             caching: enabled
             cache_from: type=gha
-            cache_to: type=gha,mode=max
+            cache_to: type=gha,mode=min
           - docker_target: nocache
             docker_image_name: ${{ github.repository_owner }}/test-docker-image-builder-nocache
             caching: disabled
             cache_from:
             cache_to:
-          - docker_target: automatic
+          - docker_target: autocache
             docker_image_name: ${{ github.repository_owner }}/test-docker-image-builder-auto
             caching: automatic
             cache_from:
@@ -77,6 +77,8 @@ jobs:
           load_locally: true
           dockerfile: docker-image-builder/Dockerfile.test
           image_platforms: linux/amd64
+          enable_build_summary: false
+          enable_build_record: false
           dockerhub_image_name: ${{ matrix.docker_image_name }}
           caching: ${{ matrix.caching }}
           cache_from: ${{ matrix.cache_from }}
