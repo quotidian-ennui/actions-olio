@@ -41,6 +41,7 @@ Defaults are the values in parentheses
 |   dockerhub_token    | string |  false   |                 |                                                Dockerhub token                                                 |
 |    dockerhub_user    | string |  false   |                 |                                               Dockerhub username                                               |
 | enable_build_record  | string |  false   |    `"false"`    |                                 Docker Build Record Upload to build artifacts                                  |
+| enable_build_summary | string |  false   |    `"true"`     |                                         Emit a docker builder summary                                          |
 |   ghcr_image_name    | string |  false   |                 |                              Github container registry image name (ghcr.io/x/y/z)                              |
 |      ghcr_token      | string |  false   |                 |                                    Token for the github container registry                                     |
 |      ghcr_user       | string |  false   |                 |                                       Github container registry username                                       |
