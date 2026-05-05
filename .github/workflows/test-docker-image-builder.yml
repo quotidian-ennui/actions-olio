@@ -30,8 +30,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      issues: write
-      statuses: write
     strategy:
       matrix:
         docker_target: ["explict-cache", "nocache", "autocache"]
