@@ -2,11 +2,19 @@ name: Docker Build
 description: Build and optionally publish a docker image.
 inputs:
   cache_from:
-    description: "List of external cache sources for build-push-action (e.g., user/app:cache, type=local,src=path/to/dir)"
+    description: "List of external cache sources for build-push-action (e.g., type=gha), overrides 'caching' setting"
     required: false
   cache_to:
-    description: "List of cache export destinations for build-push-action (e.g., user/app:cache, type=local,dest=path/to/dir)"
+    description: "List of cache export destinations for build-push-action (e.g., type=gha,mode=max), overrides 'caching' setting"
     required: false
+  caching:
+    description: "Automagically make a choice about caching, valid options being automatic, local, or none"
+    required: false
+    default: "automatic"
+  context:
+    description: "The Context to pass through to docker"
+    required: false
+    default: "."
   registry_push:
     description: Whether to push to the registry
     required: false
@@ -48,6 +56,10 @@ inputs:
     description: Docker Build Record Upload to build artifacts
     required: false
     default: "false"
+  enable_build_summary:
+    description: Emit a docker builder summary
+    required: false
+    default: "true"
 
 outputs:
   image_tags:
@@ -66,11 +78,84 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Bootstrap
+      id: bootstrap
+      shell: bash
+      env:
+        CACHE_MODE: ${{ inputs.caching }}
+        CACHE_TO: ${{ inputs.cache_to }}
+        CACHE_FROM: ${{ inputs.cache_from }}
+        ON_DEFAULT_BRANCH: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+        LOCAL_CACHE_SOURCE: "${{ runner.temp }}/.buildx-cache"
+        LOCAL_CACHE_DEST: "${{ runner.temp }}/.buildx-cache-rebuild"
+      run: |
+        echo "::group::docker-cache-settings"
+        if [[ "$CACHE_TO" == "" && "$CACHE_FROM" == "" ]]; then
+          case "$CACHE_MODE" in
+            automatic)
+              printf "cache_to=%s\n" "type=gha,mode=max" | tee -a "$GITHUB_OUTPUT"
+              printf "cache_from=%s\n" "type=gha" | tee -a "$GITHUB_OUTPUT"#
+              printf "cache_location=%s\n" "gha" | tee -a "$GITHUB_OUTPUT"
+              if [[ "$ON_DEFAULT_BRANCH" == "true" ]]; then
+                printf "caching=%s\n" "true" | tee -a "$GITHUB_OUTPUT"
+              else
+                printf "caching=%s\n" "false" | tee -a "$GITHUB_OUTPUT"
+              fi
+              ;;
+            local)
+              printf "caching=%s\n" "true" | tee -a "$GITHUB_OUTPUT"
+              printf "local_cache_src=%s\n" "$LOCAL_CACHE_SOURCE" | tee -a "$GITHUB_OUTPUT"
+              printf "local_cache_dest=%s\n" "$LOCAL_CACHE_DEST" | tee -a "$GITHUB_OUTPUT"
+              printf "cache_from=%s\n" "type=local,src=$LOCAL_CACHE_SOURCE" | tee -a "$GITHUB_OUTPUT"
+              printf "cache_to=%s\n" "type=local,dest=$LOCAL_CACHE_DEST" | tee -a "$GITHUB_OUTPUT"
+              printf "cache_location=%s\n" "local" | tee -a "$GITHUB_OUTPUT"
+              if [[ "$ON_DEFAULT_BRANCH" == "true" ]]; then
+                printf "rw_cache=%s\n" "true" | tee -a "$GITHUB_OUTPUT"
+              else
+                printf "rw_cache=%s\n" "false" | tee -a "$GITHUB_OUTPUT"
+              fi
+              ;;
+            *)
+              printf "caching=%s\n" "false" | tee -a "$GITHUB_OUTPUT"
+              ;;
+          esac
+        else
+          printf "cache_to=%s\n" "$CACHE_TO" | tee -a "$GITHUB_OUTPUT"
+          printf "cache_from=%s\n" "$CACHE_FROM" | tee -a "$GITHUB_OUTPUT"
+          printf "caching=%s\n" "true" | tee -a "$GITHUB_OUTPUT"
+          printf "cache_location=%s\n" "external" | tee -a "$GITHUB_OUTPUT"
+        fi
+        echo "::endgroup::"
+
     - name: Set up QEMU
       uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
+      with:
+        cache-image: ${{ steps.bootstrap.outputs.caching == 'true' && steps.bootstrap.outputs.cache_location != 'local' }}
     - name: Set up Docker Buildx
       id: buildx
       uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+      with:
+        cache-binary: ${{ steps.bootstrap.outputs.caching == 'true' && steps.bootstrap.outputs.cache_location != 'local'}}
+
+    - name: ReadOnly Cache
+      uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      id: ro-cache
+      if: steps.bootstrap.outputs.cache_location == 'local' && steps.bootstrap.outputs.rw_cache == 'false'
+      with:
+        path: ${{ steps.bootstrap.outputs.local_cache_src }}
+        key: ${{ runner.os }}-buildx-${{ github.sha }}-${{ hashFiles('${{ inputs.dockerfile }}') }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Cache
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      id: rw-cache
+      if: steps.bootstrap.outputs.cache_location == 'local' && steps.bootstrap.outputs.rw_cache == 'true'
+      with:
+        path: ${{ steps.bootstrap.outputs.local_cache_src }}
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: ${{ runner.os }}-buildx-
+
     - name: Login to DockerHub
       uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
       if: |
@@ -106,14 +191,16 @@ runs:
           type=semver,pattern={{major}}
           type=ref,event=pr,priority=100
           type=raw,value=latest,enable={{is_default_branch}}
-    - name: Build Image
+    - name: Build Image (with caching)
+      if: ${{ steps.bootstrap.outputs.caching == 'true' }}
+      id: build_cache
       uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
       env:
         DOCKER_BUILD_RECORD_UPLOAD: ${{ inputs.enable_build_record }}
+        DOCKER_BUILD_SUMMARY: ${{ inputs.enable_build_summary }}
       with:
-        # no-cache: true
         builder: ${{ steps.buildx.outputs.name }}
-        context: .
+        context: ${{ inputs.context }}
         file: ${{ inputs.dockerfile }}
         platforms: ${{ inputs.image_platforms }}
         push: ${{ inputs.registry_push }}
@@ -121,5 +208,38 @@ runs:
         tags: ${{ steps.docker_meta.outputs.tags }}
         labels: ${{ steps.docker_meta.outputs.labels }}
         provenance: false
-        cache-from: ${{ inputs.cache_from }}
-        cache-to: ${{ inputs.cache_to }}
+        cache-from: ${{ steps.bootstrap.outputs.cache_from }}
+        cache-to: ${{ steps.bootstrap.outputs.cache_to }}
+    - name: Build Image (no-cache)
+      id: build_nocache
+      uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+      if: ${{ steps.bootstrap.outputs.caching != 'true' }}
+      env:
+        DOCKER_BUILD_RECORD_UPLOAD: ${{ inputs.enable_build_record }}
+        DOCKER_BUILD_SUMMARY: ${{ inputs.enable_build_summary }}
+      with:
+        no-cache: true
+        builder: ${{ steps.buildx.outputs.name }}
+        context: ${{ inputs.context }}
+        file: ${{ inputs.dockerfile }}
+        platforms: ${{ inputs.image_platforms }}
+        push: ${{ inputs.registry_push }}
+        load: ${{ inputs.load_locally }}
+        tags: ${{ steps.docker_meta.outputs.tags }}
+        labels: ${{ steps.docker_meta.outputs.labels }}
+        provenance: false
+    - name: Local cache fixup
+      if: steps.bootstrap.outputs.cache_location == 'local' && steps.bootstrap.outputs.rw_cache == 'true'
+      env:
+        LOCAL_CACHE_SOURCE: ${{ steps.bootstrap.outputs.local_cache_src }}
+        LOCAL_CACHE_DEST: ${{ steps.bootstrap.outputs.local_cache_dest }}
+      shell: bash
+      run: |
+        # https://github.com/docker/build-push-action/issues/252
+        echo "::group::docker-cache-settings"
+        if [[ -n "$LOCAL_CACHE_SOURCE" && -d "$LOCAL_CACHE_SOURCE" ]]; then
+          echo "ensure cache doesn't 'infinitely grow'"
+          rm "$LOCAL_CACHE_SOURCE"
+          mv "$LOCAL_CACHE_DEST" "$LOCAL_CACHE_SOURCE"
+        fi
+        echo "::endgroup::"

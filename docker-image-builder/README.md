@@ -17,11 +17,7 @@ Defaults are the values in parentheses
 - name: docker-build-push
   uses: quotidian-ennui/actions-olio/docker-image-builder@main
   with:
-    registry_push: true | (false)
-    load_locally: (false) | true
     dockerfile: /path/to/Dockerfile
-    image_tag_suffix: suffix to add to the version if any ('')
-    image_platforms: platforms to build for (linux/amd64)
     ghcr_image_name: your image name on ghcr.io
     dockerhub_image_name: your image on hub.docker.com
     ghcr_user: ${{ github.repository_owner }}
@@ -34,22 +30,25 @@ Defaults are the values in parentheses
 
 <!-- AUTO-DOC-INPUT:START - Do not remove or modify this section -->
 
-|        INPUT         |  TYPE  | REQUIRED |     DEFAULT     |                                                 DESCRIPTION                                                 |
-|----------------------|--------|----------|-----------------|-------------------------------------------------------------------------------------------------------------|
-|      cache_from      | string |  false   |                 |   List of external cache sources for build-push-action (e.g., user/app:cache, type=local,src=path/to/dir)   |
-|       cache_to       | string |  false   |                 | List of cache export destinations for build-push-action (e.g., user/app:cache, type=local,dest=path/to/dir) |
-|      dockerfile      | string |   true   |                 |                                           Path to the dockerfile                                            |
-| dockerhub_image_name | string |  false   |                 |                                            Dockerhub image name                                             |
-|   dockerhub_token    | string |  false   |                 |                                               Dockerhub token                                               |
-|    dockerhub_user    | string |  false   |                 |                                             Dockerhub username                                              |
-| enable_build_record  | string |  false   |    `"false"`    |                                Docker Build Record Upload to build artifacts                                |
-|   ghcr_image_name    | string |  false   |                 |                            Github container registry image name (ghcr.io/x/y/z)                             |
-|      ghcr_token      | string |  false   |                 |                                   Token for the github container registry                                   |
-|      ghcr_user       | string |  false   |                 |                                     Github container registry username                                      |
-|   image_platforms    | string |  false   | `"linux/amd64"` |                                           Platforms to build for                                            |
-|   image_tag_suffix   | string |  false   |                 |                                          Suffix for the image name                                          |
-|     load_locally     | string |  false   |    `"false"`    |                   Whether to load the image locally if you want to use it in a later step                   |
-|    registry_push     | string |  false   |    `"false"`    |                                       Whether to push to the registry                                       |
+|        INPUT         |  TYPE  | REQUIRED |     DEFAULT     |                                                  DESCRIPTION                                                   |
+|----------------------|--------|----------|-----------------|----------------------------------------------------------------------------------------------------------------|
+|      cache_from      | string |  false   |                 |       List of external cache sources for build-push-action (e.g., type=gha), overrides 'caching' setting       |
+|       cache_to       | string |  false   |                 | List of cache export destinations for build-push-action (e.g., type=gha,mode=max), overrides 'caching' setting |
+|       caching        | string |  false   |  `"automatic"`  |            Automagically make a choice about caching, valid options being automatic, local, or none            |
+|       context        | string |  false   |      `"."`      |                                     The Context to pass through to docker                                      |
+|      dockerfile      | string |   true   |                 |                                             Path to the dockerfile                                             |
+| dockerhub_image_name | string |  false   |                 |                                              Dockerhub image name                                              |
+|   dockerhub_token    | string |  false   |                 |                                                Dockerhub token                                                 |
+|    dockerhub_user    | string |  false   |                 |                                               Dockerhub username                                               |
+| enable_build_record  | string |  false   |    `"false"`    |                                 Docker Build Record Upload to build artifacts                                  |
+| enable_build_summary | string |  false   |    `"true"`     |                                         Emit a docker builder summary                                          |
+|   ghcr_image_name    | string |  false   |                 |                              Github container registry image name (ghcr.io/x/y/z)                              |
+|      ghcr_token      | string |  false   |                 |                                    Token for the github container registry                                     |
+|      ghcr_user       | string |  false   |                 |                                       Github container registry username                                       |
+|   image_platforms    | string |  false   | `"linux/amd64"` |                                             Platforms to build for                                             |
+|   image_tag_suffix   | string |  false   |                 |                                           Suffix for the image name                                            |
+|     load_locally     | string |  false   |    `"false"`    |                    Whether to load the image locally if you want to use it in a later step                     |
+|    registry_push     | string |  false   |    `"false"`    |                                        Whether to push to the registry                                         |
 
 <!-- AUTO-DOC-INPUT:END -->
 
@@ -79,3 +78,4 @@ It's a composite action that wraps the following actions:
 - docker/login-action
 - docker/metadata-action
 - docker/build-push-action
+- actions/cache (if you opt for a local cache)
