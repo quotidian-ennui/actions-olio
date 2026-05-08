@@ -92,13 +92,16 @@ runs:
         if [[ "$CACHE_TO" == "" && "$CACHE_FROM" == "" ]]; then
           case "$CACHE_MODE" in
             automatic)
-              printf "cache_to=%s\n" "type=gha" | tee -a "$GITHUB_OUTPUT"
-              printf "cache_from=%s\n" "type=gha,mode=max" | tee -a "$GITHUB_OUTPUT"
-              printf "caching=%s\n" "true" | tee -a "$GITHUB_OUTPUT"
+              printf "cache_to=%s\n" "type=gha,mode=max" | tee -a "$GITHUB_OUTPUT"
+              printf "cache_from=%s\n" "type=gha" | tee -a "$GITHUB_OUTPUT"#
               printf "cache_location=%s\n" "gha" | tee -a "$GITHUB_OUTPUT"
+              if [[ "$ON_DEFAULT_BRANCH" == "true" ]]; then
+                printf "caching=%s\n" "true" | tee -a "$GITHUB_OUTPUT"
+              else
+                printf "caching=%s\n" "false" | tee -a "$GITHUB_OUTPUT"
+              fi
               ;;
             local)
-              cache_source=
               printf "caching=%s\n" "true" | tee -a "$GITHUB_OUTPUT"
               printf "local_cache_src=%s\n" "$LOCAL_CACHE_SOURCE" | tee -a "$GITHUB_OUTPUT"
               printf "local_cache_dest=%s\n" "$LOCAL_CACHE_DEST" | tee -a "$GITHUB_OUTPUT"
@@ -229,7 +232,8 @@ runs:
         LOCAL_CACHE_DEST: ${{ steps.bootstrap.outputs.local_cache_dest }}
       shell: bash
       run: |
-        if [[ -d "$LOCAL_CACHE_SOURCE" ]]; then
+        # https://github.com/docker/build-push-action/issues/252
+        if [[ -n "$LOCAL_CACHE_SOURCE" && -d "$LOCAL_CACHE_SOURCE" ]]; then
           rm "$LOCAL_CACHE_SOURCE"
           mv "$LOCAL_CACHE_DEST" "$LOCAL_CACHE_SOURCE"
         fi
