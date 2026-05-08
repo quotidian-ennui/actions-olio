@@ -89,6 +89,7 @@ runs:
         LOCAL_CACHE_SOURCE: "${{ runner.temp }}/.buildx-cache"
         LOCAL_CACHE_DEST: "${{ runner.temp }}/.buildx-cache-rebuild"
       run: |
+        echo "::group::docker-cache-settings"
         if [[ "$CACHE_TO" == "" && "$CACHE_FROM" == "" ]]; then
           case "$CACHE_MODE" in
             automatic)
@@ -124,6 +125,7 @@ runs:
           printf "caching=%s\n" "true" | tee -a "$GITHUB_OUTPUT"
           printf "cache_location=%s\n" "external" | tee -a "$GITHUB_OUTPUT"
         fi
+        echo "::endgroup::"
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
@@ -141,8 +143,9 @@ runs:
       if: steps.bootstrap.outputs.cache_location == 'local' && steps.bootstrap.outputs.rw_cache == 'false'
       with:
         path: ${{ steps.bootstrap.outputs.local_cache_src }}
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: ${{ runner.os }}-buildx-
+        key: ${{ runner.os }}-buildx-${{ github.sha }}-${{ hashFiles('${{ inputs.dockerfile }}') }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
 
     - name: Cache
       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -233,7 +236,10 @@ runs:
       shell: bash
       run: |
         # https://github.com/docker/build-push-action/issues/252
+        echo "::group::docker-cache-settings"
         if [[ -n "$LOCAL_CACHE_SOURCE" && -d "$LOCAL_CACHE_SOURCE" ]]; then
+          echo "ensure cache doesn't 'infinitely grow'"
           rm "$LOCAL_CACHE_SOURCE"
           mv "$LOCAL_CACHE_DEST" "$LOCAL_CACHE_SOURCE"
         fi
+        echo "::endgroup::"
