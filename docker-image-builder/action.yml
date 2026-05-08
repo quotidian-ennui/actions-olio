@@ -244,7 +244,7 @@ runs:
         echo "::group::docker-cache-settings"
         if [[ -n "$LOCAL_CACHE_SOURCE" && -d "$LOCAL_CACHE_SOURCE" ]]; then
           echo "ensure cache doesn't 'infinitely grow'"
-          rm "$LOCAL_CACHE_SOURCE"
+          rm -rf "$LOCAL_CACHE_SOURCE"
           mv "$LOCAL_CACHE_DEST" "$LOCAL_CACHE_SOURCE"
         fi
         echo "::endgroup::"
