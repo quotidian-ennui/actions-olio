@@ -32,9 +32,9 @@ Defaults are the values in parentheses
 
 |        INPUT         |  TYPE  | REQUIRED |     DEFAULT     |                                                  DESCRIPTION                                                   |
 |----------------------|--------|----------|-----------------|----------------------------------------------------------------------------------------------------------------|
-|      cache_from      | string |  false   |                 |       List of external cache sources for build-push-action (e.g., type=gha), overrides automatic setting       |
-|       cache_to       | string |  false   |                 | List of cache export destinations for build-push-action (e.g., type=gha,mode=max), overrides automatic setting |
-|       caching        | string |  false   |  `"automatic"`  |                                   Automagically make a choice about caching                                    |
+|      cache_from      | string |  false   |                 |       List of external cache sources for build-push-action (e.g., type=gha), overrides 'caching' setting       |
+|       cache_to       | string |  false   |                 | List of cache export destinations for build-push-action (e.g., type=gha,mode=max), overrides 'caching' setting |
+|       caching        | string |  false   |  `"automatic"`  |            Automagically make a choice about caching, valid options being automatic, local, or none            |
 |       context        | string |  false   |      `"."`      |                                     The Context to pass through to docker                                      |
 |      dockerfile      | string |   true   |                 |                                             Path to the dockerfile                                             |
 | dockerhub_image_name | string |  false   |                 |                                              Dockerhub image name                                              |
@@ -78,3 +78,4 @@ It's a composite action that wraps the following actions:
 - docker/login-action
 - docker/metadata-action
 - docker/build-push-action
+- actions/cache (if you opt for a local cache)
