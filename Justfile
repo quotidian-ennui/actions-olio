@@ -1,5 +1,5 @@
-set positional-arguments := true
-set unstable := true
+set positional-arguments
+set unstable
 set script-interpreter := ['/usr/bin/env', 'bash']
 
 # show recipes
@@ -76,12 +76,14 @@ autodoc:
 
 [doc('auto-generate tag and release')]
 [script]
-autotag push="localonly":
+please-release push="localonly":
     #shellcheck disable=SC2148
     set -eo pipefail
 
     next="$(just next)"
     just release "$next" "{{ push }}"
+
+alias autotag := please-release
 
 # Since we have that refer to their peers(e.g. dependabot-action-merge refers
 # to pr-or-issue-comment) we rewrite the @main to be @tag, commit, tag and
