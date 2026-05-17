@@ -145,9 +145,9 @@ runs:
       if: steps.bootstrap.outputs.cache_location == 'local' && steps.bootstrap.outputs.rw_cache == 'false'
       with:
         path: ${{ steps.bootstrap.outputs.local_cache_src }}
-        key: ${{ runner.os }}-buildx-${{ github.sha }}-${{ hashFiles(inputs.dockerfile) }}
+        key: ${{ runner.os }}-buildx-${{ hashFiles(inputs.dockerfile) }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-buildx-${{ github.sha }}-
+          ${{ runner.os }}-buildx-${{ hashFiles(inputs.dockerfile) }}-
           ${{ runner.os }}-buildx-
 
     - name: Cache
@@ -156,9 +156,9 @@ runs:
       if: steps.bootstrap.outputs.cache_location == 'local' && steps.bootstrap.outputs.rw_cache == 'true'
       with:
         path: ${{ steps.bootstrap.outputs.local_cache_src }}
-        key: ${{ runner.os }}-buildx-${{ github.sha }}-${{ hashFiles(inputs.dockerfile) }}
+        key: ${{ runner.os }}-buildx-${{ hashFiles(inputs.dockerfile) }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-buildx-${{ github.sha }}-
+          ${{ runner.os }}-buildx-${{ hashFiles(inputs.dockerfile) }}-
           ${{ runner.os }}-buildx-
 
     - name: Login to DockerHub

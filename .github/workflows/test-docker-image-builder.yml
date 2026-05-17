@@ -78,7 +78,7 @@ jobs:
         with:
           registry_push: false
           load_locally: true
-          dockerfile: docker-image-builder/Dockerfile.test
+          dockerfile: src/test/docker-image-builder/Dockerfile.test
           image_platforms: linux/amd64
           enable_build_summary: false
           enable_build_record: false
