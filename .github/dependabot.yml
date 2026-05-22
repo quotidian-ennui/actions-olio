@@ -45,3 +45,13 @@ updates:
       setup-java-test:
         patterns:
           - "*"
+  - package-ecosystem: "docker"
+    directories:
+      - "src/test/docker-image-builder"
+    open-pull-requests-limit: 20
+    schedule:
+      interval: "daily"
+      time: "03:23"
+      timezone: "Europe/London"
+    allow:
+      - dependency-type: "all"
