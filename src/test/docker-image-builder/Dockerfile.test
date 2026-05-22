@@ -1,5 +1,4 @@
 # simple dockerfile for testing purposes
 # @see test-docker-image-builder.yml
-FROM alpine:latest
-RUN apk add --no-cache --update curl bash
-
+# ubi10 contains curl
+FROM registry.access.redhat.com/ubi10:10.2-1777462922
