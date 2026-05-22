@@ -199,7 +199,7 @@ runs:
     - name: Build Image (with caching)
       if: ${{ steps.bootstrap.outputs.caching == 'true' }}
       id: build_cache
-      uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+      uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
       env:
         DOCKER_BUILD_RECORD_UPLOAD: ${{ inputs.enable_build_record }}
         DOCKER_BUILD_SUMMARY: ${{ inputs.enable_build_summary }}
@@ -217,7 +217,7 @@ runs:
         cache-to: ${{ steps.bootstrap.outputs.cache_to }}
     - name: Build Image (no-cache)
       id: build_nocache
-      uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+      uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
       if: ${{ steps.bootstrap.outputs.caching != 'true' }}
       env:
         DOCKER_BUILD_RECORD_UPLOAD: ${{ inputs.enable_build_record }}
