@@ -153,9 +153,8 @@ runs:
       if: steps.bootstrap.outputs.cache_location == 'local' && steps.bootstrap.outputs.rw_cache == 'false'
       with:
         path: ${{ steps.bootstrap.outputs.local_cache_src }}
-        key: ${{ runner.os }}-buildx-${{ steps.bootstrap.outputs.local_cache_key }}-${{ hashFiles(inputs.dockerfile) }}-${{ github.sha }}
+        key: ${{ runner.os }}-buildx-${{ steps.bootstrap.outputs.local_cache_key }}-${{ hashFiles(inputs.dockerfile) }}
         restore-keys: |
-          ${{ runner.os }}-buildx-${{ steps.bootstrap.outputs.local_cache_key }}-${{ hashFiles(inputs.dockerfile) }}-
           ${{ runner.os }}-buildx-${{ steps.bootstrap.outputs.local_cache_key }}-
           ${{ runner.os }}-buildx-
 
@@ -165,9 +164,8 @@ runs:
       if: steps.bootstrap.outputs.cache_location == 'local' && steps.bootstrap.outputs.rw_cache == 'true'
       with:
         path: ${{ steps.bootstrap.outputs.local_cache_src }}
-        key: ${{ runner.os }}-buildx-${{ steps.bootstrap.outputs.local_cache_key }}-${{ hashFiles(inputs.dockerfile) }}-${{ github.sha }}
+        key: ${{ runner.os }}-buildx-${{ steps.bootstrap.outputs.local_cache_key }}-${{ hashFiles(inputs.dockerfile) }}
         restore-keys: |
-          ${{ runner.os }}-buildx-${{ steps.bootstrap.outputs.local_cache_key }}-${{ hashFiles(inputs.dockerfile) }}-
           ${{ runner.os }}-buildx-${{ steps.bootstrap.outputs.local_cache_key }}-
           ${{ runner.os }}-buildx-
 
