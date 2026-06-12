@@ -89,10 +89,18 @@ runs:
         LOCAL_CACHE_SOURCE: "${{ runner.temp }}/.buildx-cache"
         LOCAL_CACHE_DEST: "${{ runner.temp }}/.buildx-cache-rebuild"
         DOCKERFILE: "${{ inputs.dockerfile }}"
+        GHCR_CONTAINER_NAME: "${{ inputs.ghcr_image_name }}"
+        DH_CONTAINER_NAME: "${{ inputs.dockerhub_image_name }}"
       run: |
 
         build_cache_name() {
-          cat "$DOCKERFILE" | grep FROM | head -n 1 | cut -d' ' -f 2 | cut -d':' -f 1
+          if [[ "$GHCR_CONTAINER_NAME" != "" ]]; then
+            echo "$GHCR_CONTAINER_NAME"
+          elif [[ "$DH_CONTAINER_NAME" != "" ]]; then
+            echo "$DH_CONTAINER_NAME"
+          else
+            cat "$DOCKERFILE" | grep FROM | head -n 1 | cut -d' ' -f 2 | cut -d':' -f 1
+          fi
         }
 
         echo "::group::docker-cache-settings"
