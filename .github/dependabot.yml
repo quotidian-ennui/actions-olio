@@ -5,14 +5,13 @@ updates:
       - "/"
     open-pull-requests-limit: 20
     schedule:
-      interval: "daily"
-      time: "03:11"
-      timezone: "Europe/London"
+      interval: "cron"
+      cronjob: "11 03 * * *"
     rebase-strategy: disabled
     cooldown:
       default-days: 3
       exclude:
-        - "quotidian-ennui/workflows-olio/*"
+        - "quotidian-ennui/*"
     allow:
       - dependency-type: all
     commit-message:
@@ -36,18 +35,16 @@ updates:
     open-pull-requests-limit: 20
     rebase-strategy: disabled
     schedule:
-      interval: "daily"
-      time: "04:11"
-      timezone: "Europe/London"
+      interval: "cron"
+      cronjob: "11 04 * * *"
     allow:
       - dependency-type: all
     commit-message:
       prefix: "deps: "
     cooldown:
-      default-days: 3
+      default-days: 4
       exclude:
-        - "quotidian-ennui/workflows-olio/*"
-        - "quotidian-ennui/actions-olio/*"
+        - "quotidian-ennui/*"
     groups:
       workflows-olio:
         patterns:
@@ -60,11 +57,10 @@ updates:
     open-pull-requests-limit: 20
     rebase-strategy: disabled
     cooldown:
-      default-days: 3
+      default-days: 4
     schedule:
-      interval: "daily"
-      time: "04:23"
-      timezone: "Europe/London"
+      interval: "cron"
+      cronjob: "23 04 * * *"
     allow:
       - dependency-type: "all"
     groups:
@@ -77,10 +73,9 @@ updates:
     open-pull-requests-limit: 20
     rebase-strategy: disabled
     cooldown:
-      default-days: 3
+      default-days: 4
     schedule:
-      interval: "daily"
-      time: "03:23"
-      timezone: "Europe/London"
+      interval: "cron"
+      cronjob: "23 03 * * *"
     allow:
       - dependency-type: "all"
