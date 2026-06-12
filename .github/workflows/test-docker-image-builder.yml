@@ -36,21 +36,25 @@ jobs:
         include:
           - docker_target: explict-cache
             docker_image_name: ${{ github.repository_owner }}/test-docker-image-builder-cache
+            image_tag_suffix:
             caching: enabled
             cache_from: type=gha
             cache_to: type=gha,mode=min
           - docker_target: nocache
             docker_image_name: ${{ github.repository_owner }}/test-docker-image-builder-nocache
+            image_tag_suffix:
             caching: none
             cache_from:
             cache_to:
           - docker_target: autocache
             docker_image_name: ${{ github.repository_owner }}/test-docker-image-builder-auto
+            image_tag_suffix:
             caching: automatic
             cache_from:
             cache_to:
           - docker_target: local-cache
             docker_image_name: ${{ github.repository_owner }}/test-docker-image-builder-local
+            image_tag_suffix: action-cache
             caching: local
             cache_from:
             cache_to:
@@ -86,6 +90,7 @@ jobs:
           enable_build_summary: false
           enable_build_record: false
           dockerhub_image_name: ${{ matrix.docker_image_name }}
+          image_tag_suffix: ${{ matrix.image_tag_suffix }}
           caching: ${{ matrix.caching }}
           cache_from: ${{ matrix.cache_from }}
           cache_to: ${{ matrix.cache_to }}

@@ -91,13 +91,18 @@ runs:
         DOCKERFILE: "${{ inputs.dockerfile }}"
         GHCR_CONTAINER_NAME: "${{ inputs.ghcr_image_name }}"
         DH_CONTAINER_NAME: "${{ inputs.dockerhub_image_name }}"
+        IMAGE_SUFFIX: "${{ inputs.image_tag_suffix }}"
       run: |
 
         build_cache_name() {
+          local suffix=""
+          if [[ "$IMAGE_SUFFIX" != "" ]]; then
+            suffix="-$IMAGE_SUFFIX"
+          fi
           if [[ "$GHCR_CONTAINER_NAME" != "" ]]; then
-            echo "$GHCR_CONTAINER_NAME"
+            echo "$GHCR_CONTAINER_NAME$suffix"
           elif [[ "$DH_CONTAINER_NAME" != "" ]]; then
-            echo "$DH_CONTAINER_NAME"
+            echo "$DH_CONTAINER_NAME$suffix"
           else
             cat "$DOCKERFILE" | grep FROM | head -n 1 | cut -d' ' -f 2 | cut -d':' -f 1
           fi
