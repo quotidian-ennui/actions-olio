@@ -79,3 +79,7 @@ updates:
       cronjob: "23 03 * * *"
     allow:
       - dependency-type: "all"
+    ignore:
+      - dependency-name: "ubi10"
+        versions:
+          - ">=11.0"
