@@ -7,12 +7,14 @@ on:
     paths:
       - "setup-java-gradle/**"
       - ".github/workflows/test-setup-java.yml"
+      - "src/test/setup-java-gradle/**"
   pull_request:
     branches:
       - main
     paths:
       - "setup-java-gradle/**"
       - ".github/workflows/test-setup-java.yml"
+      - "src/test/setup-java-gradle/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -58,7 +60,7 @@ jobs:
       - name: gradle-build
         id: gradle-build
         shell: bash
-        working-directory: ./setup-java-gradle/test
+        working-directory: ./src/test/setup-java-gradle
         run: |
           ./gradlew check
 
