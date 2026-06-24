@@ -63,7 +63,7 @@ jobs:
           check_all_files_with_shebangs: "true"
           fail_level: error
       - name: shfmt
-        uses: reviewdog/action-shfmt@d8f080930b9be5847b4f97e9f4122b81a82aaeac # v1.0.4
+        uses: reviewdog/action-shfmt@c5e3ba7497c338866921924691aef4fa18bc1fe0 # v1.1.0
         if: steps.changes.outputs.shellscripts_any_changed == 'true'
         with:
           fail_on_error: true
