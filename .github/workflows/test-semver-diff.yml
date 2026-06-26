@@ -1,0 +1,99 @@
+name: test-semver-diff
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "semver-diff/**"
+      - ".github/workflows/test-semver-diff.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "semver-diff/**"
+      - ".github/workflows/test-semver-diff.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  test-semver-diff:
+    name: test-semver-diff
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: step-security/harden-runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: semver-diff-patch
+        id: semver-diff-patch
+        uses: ./semver-diff
+        with:
+          first: 1.0.0
+          second: 1.0.1
+      - name: semver-diff-minor
+        id: semver-diff-minor
+        uses: ./semver-diff
+        with:
+          first: 1.0.0
+          second: 1.1.1
+      - name: semver-diff-major
+        id: semver-diff-major
+        uses: ./semver-diff
+        with:
+          first: 1.0.0
+          second: 2.1.1
+      - name: assert output
+        id: assert
+        env:
+          SEMVER_DIFF_PATCH: ${{ steps.semver-diff-patch.outputs.diff }}
+          SEMVER_DIFF_MINOR: ${{ steps.semver-diff-minor.outputs.diff }}
+          SEMVER_DIFF_MAJOR: ${{ steps.semver-diff-major.outputs.diff }}
+        run: |
+
+          if [[ "$SEMVER_DIFF_PATCH" != "patch" ]]; then
+            echo "::error::semver-diff patch changes not detected"
+            exit 1
+          fi
+          if [[ "$SEMVER_DIFF_MINOR" != "minor" ]]; then
+            echo "::error::semver-diff minor changes not detected"
+            exit 1
+          fi
+          if [[ "$SEMVER_DIFF_MAJOR" != "major" ]]; then
+            echo "::error::semver-diff major changes not detected"
+            exit 1
+          fi
+
+  notification:
+    name: notification
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - test-semver-diff
+    if: |
+      github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: dispatch
+        uses: ./pr-trigger
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event_type: "pr-semver-diff-test-success"

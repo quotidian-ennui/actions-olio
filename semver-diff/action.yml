@@ -1,0 +1,49 @@
+name: semver-diff
+description: |
+  Diff two semantic versions and emit the delta as an output
+inputs:
+  first:
+    description: The first tag
+    required: true
+  second:
+    description: The second tag
+    required: true
+  type-major:
+    description: The conventional type for a major change
+    default: "feat!"
+    required: false
+  type-minor:
+    description: The conventional type for a minor change
+    default: "feat"
+    required: false
+  type-patch:
+    description: The conventional type for a patch change
+    default: "fix"
+    required: false
+
+outputs:
+  diff:
+    description: The diff -  major,minor,patch
+    value: ${{ steps.semver-diff.outputs.diff }}
+  commit-type:
+    description: The conventional commit type that corresponds to the diff
+    value: ${{ steps.semver-diff.outputs.commit_type }}
+
+branding:
+  color: orange
+  icon: tag
+
+runs:
+  using: composite
+  steps:
+    - name: Diff Versions
+      id: semver-diff
+      shell: bash
+      env:
+        SEMVER_TAG_ONE: ${{ inputs.first }}
+        SEMVER_TAG_TWO: ${{ inputs.second }}
+        TYPE_MAJOR: ${{ inputs.type-major }}
+        TYPE_MINOR: ${{ inputs.type-minor }}
+        TYPE_PATCH: ${{ inputs.type-patch }}
+      run: |
+        bash ${GITHUB_ACTION_PATH}/action.sh
