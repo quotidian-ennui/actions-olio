@@ -5,6 +5,7 @@ on:
     types:
       - pr-trigger
       - pr-issue-comment-test-success
+      - pr-semver-diff-test-success
       - pr-setup-java-gradle-test-success
       - pr-commit-status-test-success
       - pr-docker-image-builder-test-success
@@ -34,6 +35,11 @@ jobs:
         id: prepare
         run: |
           case "${{ github.event.action }}" in
+            pr-semver-diff-test-success)
+              echo 'change_filter=semver-diff/**' >> "$GITHUB_OUTPUT"
+              echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
+              echo 'merge_context=semver-diff tests passed' >> "$GITHUB_OUTPUT"
+              ;;
             pr-issue-comment-test-success)
               echo 'change_filter=pr-or-issue-comment/**' >> "$GITHUB_OUTPUT"
               echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
