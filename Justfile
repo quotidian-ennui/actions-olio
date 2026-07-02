@@ -7,7 +7,24 @@ set script-interpreter := ['/usr/bin/env', 'bash']
 @help:
     just --list --list-prefix "  "
 
+[doc("Show proposed release notes")]
+[group("doc")]
+[group("release")]
+[script]
+changelog *args="--unreleased":
+    #
+    set -eo pipefail
+    top=$(git rev-parse --show-toplevel)
+    pushd "$top" >/dev/null
+    if [[ -s "cliff.toml" ]]; then
+      git cliff "$@"
+    else
+      git cliff --config "~/.config/git-cliff/default-cliff.toml" "$@"
+    fi
+    popd >/dev/null
+
 [doc("Show next version as proposed by git-semver")]
+[group("release")]
 [script]
 next:
     #shellcheck disable=SC2148
@@ -63,6 +80,7 @@ next:
     fi
 
 [doc('run autodoc')]
+[group("doc")]
 [script]
 autodoc:
     #shellcheck disable=SC2148
@@ -75,6 +93,7 @@ autodoc:
     done
 
 [doc('auto-generate tag and release')]
+[group("release")]
 [script]
 please-release push="localonly":
     #shellcheck disable=SC2148
@@ -89,6 +108,7 @@ alias autotag := please-release
 # to pr-or-issue-comment) we rewrite the @main to be @tag, commit, tag and
 # switch back to @main
 [doc('Tag & release')]
+[group("release")]
 [script]
 release tag push="localonly":
     #shellcheck disable=SC2148
