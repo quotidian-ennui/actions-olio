@@ -51,7 +51,7 @@ jobs:
               echo 'merge_context=Commit Status & Label Tests passed' >> "$GITHUB_OUTPUT"
               ;;
             pr-docker-image-builder-test-success)
-              echo 'change_filter=docker-image-builder/**' >> "$GITHUB_OUTPUT"
+              echo 'change_filter=docker-image-builder/**,src/test/docker-image-builder/**' >> "$GITHUB_OUTPUT"
               echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
               echo 'merge_context=Docker image builder tests passed' >> "$GITHUB_OUTPUT"
               ;;
@@ -61,7 +61,7 @@ jobs:
               echo 'merge_context=Repo Dispatch tests passed' >> "$GITHUB_OUTPUT"
               ;;
             pr-setup-java-gradle-test-success)
-              echo 'change_filter=setup-java-gradle/**' >> "$GITHUB_OUTPUT"
+              echo 'change_filter=setup-java-gradle/**,src/test/setup-java-gradle/**' >> "$GITHUB_OUTPUT"
               echo 'automerge_level=semver-patch' >> "$GITHUB_OUTPUT"
               echo 'merge_context=setup-java-gradle tests passed' >> "$GITHUB_OUTPUT"
               ;;
