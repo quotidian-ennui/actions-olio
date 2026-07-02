@@ -54,7 +54,7 @@ updates:
       - dependency-type: "all"
 
   - package-ecosystem: "gradle"
-    directory: "setup-java-gradle/test"
+    directory: "src/test/setup-java-gradle"
     open-pull-requests-limit: 20
     rebase-strategy: disabled
     cooldown:
