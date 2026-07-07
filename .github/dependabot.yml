@@ -20,19 +20,18 @@ updates:
       workflows-olio:
         patterns:
           - "quotidian-ennui/workflows-olio/*"
-
   - package-ecosystem: github-actions
     directories:
-      - "commit-status-and-label"
-      - "default-updatecli"
-      - "dependabot-merge"
-      - "docker-image-builder"
-      - "pr-or-issue-comment"
-      - "pr-trigger"
-      - "repo-dispatch"
-      - "dismiss-dependabot-alerts"
-      - "setup-java-gradle"
-      - "semver-diff"
+      - commit-status-and-label
+      - default-updatecli
+      - dependabot-merge
+      - dismiss-dependabot-alerts
+      - docker-image-builder
+      - pr-or-issue-comment
+      - pr-trigger
+      - repo-dispatch
+      - semver-diff
+      - setup-java-gradle
     open-pull-requests-limit: 20
     rebase-strategy: disabled
     schedule:
@@ -52,7 +51,6 @@ updates:
           - "quotidian-ennui/workflows-olio/*"
     allow:
       - dependency-type: "all"
-
   - package-ecosystem: "gradle"
     directory: "src/test/setup-java-gradle"
     open-pull-requests-limit: 20

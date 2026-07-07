@@ -2,6 +2,8 @@ set positional-arguments
 set unstable
 set script-interpreter := ['/usr/bin/env', 'bash']
 
+DEPENDABOT_FILE := justfile_directory() / ".github/dependabot.yml"
+
 # show recipes
 [private]
 @help:
@@ -150,3 +152,46 @@ release tag push="localonly":
       *)
         ;;
     esac
+
+alias update-dependabot := dependabot
+
+[doc('Update dependabot configuration')]
+[group("helpers")]
+[script]
+dependabot:
+    #shellcheck disable=SC2148
+    set -eo pipefail
+
+    readonly YQ_MATCH_SELECTOR='[.updates[] | select(.["package-ecosystem"] == "github-actions" and .["commit-message"].prefix == "deps: ")] | length'
+    readonly YQ_UPDATE_SCRIPT='
+      (
+        .updates[]
+        | select(.["package-ecosystem"] == "github-actions" and .["commit-message"].prefix == "deps: ")
+        | .directories
+      ) = (strenv(ACTION_DIRS) | split("\n") | map(select(length > 0)))
+    '
+    readonly DEPENDABOT_FILE="{{ DEPENDABOT_FILE }}"
+
+    mapfile -t action_dirs < <(find . -type f -name "action.yml" -printf '%h\n' | sed -E 's#^\./##' | sort -u)
+    if [[ "${#action_dirs[@]}" -eq 0 ]]; then
+      echo "⚠️ No action.yml files found. abort"
+      exit 1
+    fi
+
+    match_count=$(yq eval "$YQ_MATCH_SELECTOR" "$DEPENDABOT_FILE")
+    if [[ "$match_count" != "1" ]]; then
+      echo "⚠️ Expected exactly 1 matching github-actions+deps section, found: $match_count"
+      exit 1
+    fi
+
+    action_dirs_nl=$(printf '%s\n' "${action_dirs[@]}")
+    temp_file=$(mktemp --tmpdir dependabot.XXXXXX.yml)
+    trap 'rm -f "$temp_file"' EXIT
+
+    ACTION_DIRS="$action_dirs_nl" yq eval "$YQ_UPDATE_SCRIPT" "$DEPENDABOT_FILE" > "$temp_file"
+
+    if [[ -s "$temp_file" ]]; then
+      mv "$temp_file" "$DEPENDABOT_FILE"
+    fi
+
+    trap - EXIT
