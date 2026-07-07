@@ -18,10 +18,15 @@ Not because they're that interesting, but I have made a documentation effort so 
 
 The source of the actions themselves are of course self-documenting :roll_eyes: (and you'll need to refer to them to see all the inputs + outputs).
 
-- [docker-image-builder](./docker-image-builder/README.md)
-- [repo-dispatch](./repo-dispatch/README.md)
-- [pr-or-issue-comment](./pr-or-issue-comment/README.md)
+<!-- README_GENERATOR_START -->
 - [commit-status-and-label](./commit-status-and-label/README.md)
 - [default-updatecli](./default-updatecli/README.md)
-- [pr-trigger](./pr-trigger/README.md)
 - [dependabot-merge](./dependabot-merge/README.md)
+- [dismiss-dependabot-alerts](./dismiss-dependabot-alerts/README.md)
+- [docker-image-builder](./docker-image-builder/README.md)
+- [pr-or-issue-comment](./pr-or-issue-comment/README.md)
+- [pr-trigger](./pr-trigger/README.md)
+- [repo-dispatch](./repo-dispatch/README.md)
+- [semver-diff](./semver-diff/README.md)
+- [setup-java-gradle](./setup-java-gradle/README.md)
+<!-- README_GENERATOR_END -->

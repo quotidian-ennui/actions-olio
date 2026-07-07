@@ -3,6 +3,7 @@ set unstable
 set script-interpreter := ['/usr/bin/env', 'bash']
 
 DEPENDABOT_FILE := justfile_directory() / ".github/dependabot.yml"
+ROOT_README := justfile_directory() / "README.md"
 
 # show recipes
 [private]
@@ -182,3 +183,55 @@ dependabot:
       fi
       trap - EXIT
     fi
+
+[doc('Update top-level README nested action links')]
+[group("doc")]
+[script]
+readme:
+    #shellcheck disable=SC2148
+    set -eo pipefail
+
+    readonly ROOT_README="{{ ROOT_README }}"
+    readonly START_MARKER='<!-- README_GENERATOR_START -->'
+    readonly END_MARKER='<!-- README_GENERATOR_END -->'
+    readonly AWK_UPDATE_SCRIPT='
+        $0 == start {
+          print
+          if (length(content) > 0) {
+            printf "%s", content
+          }
+          in_block = 1
+          next
+        }
+        $0 == end {
+          in_block = 0
+          print
+          next
+        }
+        !in_block { print }
+    '
+    mapfile -t nested_readmes < <(find . -mindepth 2 -maxdepth 2 -type f -name "README.md" -printf '%P\n' | sort)
+
+    if [[ "${#nested_readmes[@]}" -gt 0 ]]; then
+      bullets=""
+      for readme_path in "${nested_readmes[@]}"; do
+        item_name="${readme_path%/README.md}"
+        item_name="${item_name##*/}"
+        bullets+="- [${item_name}](./${readme_path})"$'\n'
+      done
+
+      temp_file=$(mktemp --tmpdir readme.XXXXXX.md)
+      trap 'rm -f "$temp_file"' EXIT
+
+      awk -v start="$START_MARKER" -v end="$END_MARKER" -v content="$bullets" \
+        "$AWK_UPDATE_SCRIPT" "$ROOT_README" > "$temp_file"
+
+      if [[ -s "$temp_file" ]]; then
+        mv "$temp_file" "$ROOT_README"
+      fi
+      trap - EXIT
+    fi
+
+[doc('readme & dependabot')]
+[group("helpers")]
+pre-commit: readme dependabot
