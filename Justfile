@@ -142,12 +142,12 @@ release tag push="localonly":
     check_uptodate
     push="{{ push }}"
     next=$(echo "{{ tag }}" | sed -E 's/^v?/v/')
-    switch_reference "main" "$next"
+    # switch_reference "main" "$next"
     git tag "$next" -m"release $next"
-    switch_reference "$next" "main"
+    # switch_reference "$next" "main"
     case "$push" in
       push|github|gh)
-        git push --all
+        # git push --all
         git push --tags
         ;;
       *)
