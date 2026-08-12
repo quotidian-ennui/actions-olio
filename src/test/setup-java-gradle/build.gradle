@@ -5,7 +5,7 @@ plugins {
 }
 
 ext {
-  junitJupiterVersion = '6.1.2'
+  junitJupiterVersion = '6.1.3'
 }
 
 defaultTasks 'check'
