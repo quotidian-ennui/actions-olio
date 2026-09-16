@@ -55,7 +55,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           fail_level: error
       - name: shellcheck
-        uses: reviewdog/action-shellcheck@0722bbdb0d47f04c1b53b8734d2422ac63a45ec6 # v1.32.1
+        uses: reviewdog/action-shellcheck@a94d585085f1f5215ae65f4de34e7bbd0523d550 # v1.33.0
         if: steps.changes.outputs.shellscripts_any_changed == 'true'
         with:
           reporter: github-pr-review
