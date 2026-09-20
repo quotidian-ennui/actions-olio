@@ -1,6 +1,6 @@
 set positional-arguments
 set unstable
-set script-interpreter := ['/usr/bin/env', 'bash']
+set script-interpreter := ['/usr/bin/env', 'bash', '-eo', 'pipefail']
 
 DEPENDABOT_FILE := justfile_directory() / ".github/dependabot.yml"
 ROOT_README := justfile_directory() / "README.md"
@@ -15,8 +15,7 @@ ROOT_README := justfile_directory() / "README.md"
 [group("release")]
 [script]
 changelog *args="--unreleased":
-    #
-    set -eo pipefail
+    #shellcheck disable=SC2148
     top=$(git rev-parse --show-toplevel)
     pushd "$top" >/dev/null
     if [[ -s "cliff.toml" ]]; then
@@ -31,8 +30,6 @@ changelog *args="--unreleased":
 [script]
 next:
     #shellcheck disable=SC2148
-    set -eo pipefail
-
     VERSION_REGEXP_MAJOR='s#^([0-9]+)\.([0-9]+)\.([0-9]+).*$#\1#'
     VERSION_REGEXP_MINOR='s#^([0-9]+)\.([0-9]+)\.([0-9]+).*$#\2#'
     VERSION_REGEXP_PATCH='s#^([0-9]+)\.([0-9]+)\.([0-9]+).*$#\3#'
@@ -87,8 +84,6 @@ next:
 [script]
 autodoc:
     #shellcheck disable=SC2148
-    set -eo pipefail
-
     mapfile -t action_files < <(find "." -type f -name "action.yml")
     for action in "${action_files[@]}"; do
       readme="$(dirname "$action")/README.md"
@@ -98,10 +93,8 @@ autodoc:
 [doc('auto-generate tag and release')]
 [group("release")]
 [script]
-please-release push="localonly":
+please-release push="github":
     #shellcheck disable=SC2148
-    set -eo pipefail
-
     next="$(just next)"
     just release "$next" "{{ push }}"
 
@@ -115,8 +108,6 @@ alias autotag := please-release
 [script]
 release tag push="localonly":
     #shellcheck disable=SC2148
-    set -eo pipefail
-
     switch_reference() {
       local from="$1"
       local to="$2"
@@ -161,8 +152,6 @@ alias update-dependabot := dependabot
 [script]
 dependabot:
     #shellcheck disable=SC2148
-    set -eo pipefail
-
     readonly YQ_UPDATE_SCRIPT='
       (
         .updates[]
@@ -189,8 +178,6 @@ dependabot:
 [script]
 readme:
     #shellcheck disable=SC2148
-    set -eo pipefail
-
     readonly ROOT_README="{{ ROOT_README }}"
     readonly START_MARKER='<!-- README_GENERATOR_START -->'
     readonly END_MARKER='<!-- README_GENERATOR_END -->'
