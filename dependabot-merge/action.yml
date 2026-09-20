@@ -9,43 +9,35 @@ inputs:
     required: false
     default: ${{ github.token }}
   change_filter:
-    description: |
-      The filter to use finding source file changes.
+    description: The filter to use finding source file changes.
     required: false
     default: ".github/workflows/**"
   filter_separator:
-    description: |
-      The separator to use when splitting the change_filter.
+    description: The separator to use when splitting the change_filter.
     required: false
     default: "\n"
   automerge_level:
-    description: |
-      The semver level to allow automerge up to (default semver-patch|semver-minor).
+    description: The semver level to allow automerge up to (default semver-patch|semver-minor).
     required: false
     default: "semver-patch|semver-minor"
   merge_commentary:
-    description: |
-      Additional context to add to generated comments. (defaults to blank)
+    description: Additional context to add to generated comments. (defaults to blank)
     required: false
     default: ""
   merge_max_attempts:
-    description: |
-      Max Merge Attempts (default 2)
+    description: Max Merge Attempts 
     required: false
     default: "2"
   merge_retry_wait_seconds:
-    description: |
-      Wait between each retry (default 60s)
+    description: Wait between each retry 
     required: false
     default: "60"
   merge_timeout_seconds:
-    description: |
-      Timeout (default 60s)
+    description: Timeout 
     required: false
     default: "60"
   merge_flags:
-    description: |
-      additional merge_flags (e.g. --auto)
+    description: additional merge_flags (e.g. --auto)
     required: false
     default: ""
 
