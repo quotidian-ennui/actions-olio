@@ -28,6 +28,6 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: "${{ github.event.repository.name}}"
       - name: updatecli
-        uses: ./default-updatecli
+        uses: $/default-updatecli
         with:
           token: ${{ steps.app-token.outputs.token }}

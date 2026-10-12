@@ -41,10 +41,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false        
+          persist-credentials: false
       - name: Update Status
         id: check_pending
-        uses: ./commit-status-and-label
+        uses: $/commit-status-and-label
         if: github.event_name == 'pull_request'
         with:
           token: ${{ github.token }}
@@ -52,7 +52,7 @@ jobs:
           state: "pending"
       - name: Update Status
         id: test_commit_status_update
-        uses: ./commit-status-and-label
+        uses: $/commit-status-and-label
         with:
           token: ${{ github.token }}
           sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
@@ -79,7 +79,7 @@ jobs:
       - name: Update Status
         id: update_commit_status
         if: success() || failure()
-        uses: ./commit-status-and-label
+        uses: $/commit-status-and-label
         with:
           token: ${{ github.token }}
           sha:  ${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || github.sha }}
@@ -88,7 +88,7 @@ jobs:
           label_prefix: "commit_status_tests: "
       - name: Check Status
         id: check_outcome
-        uses: ./commit-status-and-label
+        uses: $/commit-status-and-label
         if: |
           (success() || failure()) &&
           github.event_name == 'pull_request'
@@ -110,9 +110,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false        
+          persist-credentials: false
       - name: dispatch
-        uses: ./pr-trigger
+        uses: $/pr-trigger
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event_type: "pr-commit-status-test-success"

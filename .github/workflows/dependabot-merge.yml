@@ -86,7 +86,7 @@ jobs:
           repositories: "${{ github.event.repository.name}}"
       - name: Dependabot Merge
         id: dependabot_merge
-        uses: ./dependabot-merge
+        uses: $/dependabot-merge
         with:
           token: ${{ steps.app-token.outputs.token }}
           automerge_level: ${{ steps.prepare.outputs.automerge_level }}

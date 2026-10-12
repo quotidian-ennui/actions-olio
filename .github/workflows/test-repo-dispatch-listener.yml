@@ -24,7 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false        
+          persist-credentials: false
       - name: check client_payload
         id: check_payload
         run: |
@@ -41,7 +41,7 @@ jobs:
         if: |
           (success() || failure()) &&
           github.event.client_payload.base.event_trigger == 'pull_request'
-        uses: ./commit-status-and-label
+        uses: $/commit-status-and-label
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           sha:  ${{ github.event.client_payload.base.sha }}

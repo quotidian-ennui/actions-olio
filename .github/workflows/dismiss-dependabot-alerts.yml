@@ -37,6 +37,6 @@ jobs:
           repositories: "${{ github.event.repository.name}}"
       - name: "Dismiss alerts"
         id: dismiss-alerts
-        uses: ./dismiss-dependabot-alerts
+        uses: $/dismiss-dependabot-alerts
         with:
           token: ${{ steps.app-token.outputs.token }}

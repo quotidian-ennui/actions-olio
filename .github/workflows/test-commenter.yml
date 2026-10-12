@@ -44,7 +44,7 @@ jobs:
           persist-credentials: false
       - name: Update Status
         id: check_pending
-        uses: ./commit-status-and-label
+        uses: $/commit-status-and-label
         if: github.event_name == 'pull_request'
         with:
           token: ${{ github.token }}
@@ -56,7 +56,7 @@ jobs:
           echo "comment=${{ github.event_name }}(${{ github.ref }}) on $(date -u +"%Y-%m-%d %H:%M:%S") via [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> "$GITHUB_OUTPUT"
       - name: comment
         id: comment_default_search
-        uses: ./pr-or-issue-comment
+        uses: $/pr-or-issue-comment
         with:
           issue_number: 8
           body: |
@@ -64,7 +64,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: comment
         id: comment_search
-        uses: ./pr-or-issue-comment
+        uses: $/pr-or-issue-comment
         with:
           issue_number: 8
           body: |
@@ -84,7 +84,7 @@ jobs:
           fi
       - name: Check Status
         id: check_outcome
-        uses: ./commit-status-and-label
+        uses: $/commit-status-and-label
         if: |
           (success() || failure()) &&
           github.event_name == 'pull_request'
@@ -108,7 +108,7 @@ jobs:
         with:
           persist-credentials: false
       - name: dispatch
-        uses: ./pr-trigger
+        uses: $/pr-trigger
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event_type: "pr-issue-comment-test-success"

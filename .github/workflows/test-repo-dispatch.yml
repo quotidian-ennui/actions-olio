@@ -33,10 +33,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false        
+          persist-credentials: false
       - name: Update Status
         id: check_pending
-        uses: ./commit-status-and-label
+        uses: $/commit-status-and-label
         if: github.event_name == 'pull_request'
         with:
           token: ${{ github.token }}
@@ -44,7 +44,7 @@ jobs:
           state: "pending"
       - name: dispatch
         id: dispatch
-        uses: ./repo-dispatch
+        uses: $/repo-dispatch
         with:
           event_type: test-dispatch
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -68,9 +68,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: false        
+          persist-credentials: false
       - name: dispatch
-        uses: ./pr-trigger
+        uses: $/pr-trigger
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event_type: "pr-repo-dispatch-test-success"

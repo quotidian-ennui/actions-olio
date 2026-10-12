@@ -41,19 +41,19 @@ jobs:
           persist-credentials: false
       - name: semver-diff-patch
         id: semver-diff-patch
-        uses: ./semver-diff
+        uses: $/semver-diff
         with:
           first: 1.0.0
           second: 1.0.1
       - name: semver-diff-minor
         id: semver-diff-minor
-        uses: ./semver-diff
+        uses: $/semver-diff
         with:
           first: 1.0.0
           second: 1.1.1
       - name: semver-diff-major
         id: semver-diff-major
-        uses: ./semver-diff
+        uses: $/semver-diff
         with:
           first: 1.0.0
           second: 2.1.1
@@ -93,7 +93,7 @@ jobs:
         with:
           persist-credentials: false
       - name: dispatch
-        uses: ./pr-trigger
+        uses: $/pr-trigger
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event_type: "pr-semver-diff-test-success"

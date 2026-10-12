@@ -50,7 +50,7 @@ jobs:
           persist-credentials: false
       - name: setup-java
         id: setup-java
-        uses: ./setup-java-gradle
+        uses: $/setup-java-gradle
         with:
           java-version: "21"
           distribution: "temurin"
@@ -79,7 +79,7 @@ jobs:
         with:
           persist-credentials: false
       - name: dispatch
-        uses: ./pr-trigger
+        uses: $/pr-trigger
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event_type: "pr-setup-java-gradle-test-success"

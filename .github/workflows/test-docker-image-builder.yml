@@ -81,7 +81,7 @@ jobs:
           persist-credentials: false
       - name: docker-image-builder
         id: docker
-        uses: ./docker-image-builder
+        uses: $/docker-image-builder
         with:
           registry_push: false
           load_locally: true
@@ -156,7 +156,7 @@ jobs:
         with:
           persist-credentials: false
       - name: dispatch
-        uses: ./pr-trigger
+        uses: $/pr-trigger
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event_type: "pr-docker-image-builder-test-success"
