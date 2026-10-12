@@ -1,4 +1,4 @@
 # simple dockerfile for testing purposes
 # @see test-docker-image-builder.yml
 # ubi10 contains curl
-FROM registry.access.redhat.com/ubi10:10.2-1791375475@sha256:3ef7bffd1dc7e55f8d34d5cc9737d188e3b9613e562942d2955e2fc867dd74d2
+FROM registry.access.redhat.com/ubi10:10.2-1791784404@sha256:ad0d8e4fcd4c83cf4a2d025de402f010fd068e43f253d0a57b5681d1ad45f044
