@@ -11,7 +11,7 @@ FIELD='[0-9A-Za-z-]+'
 SEMVER_REGEX="\
 ^[vV]?\
 ($NAT)\\.($NAT)\\.($NAT)\
-(\\-(${IDENT})(\\.(${IDENT}))*)?\
+(\\-|\\.(${IDENT})(\\-|\\.(${IDENT}))*)?\
 (\\+${FIELD}(\\.${FIELD})*)?$"
 
 readonly MSG_MAJOR=${TYPE_MAJOR:-feat!}
@@ -19,7 +19,7 @@ readonly MSG_MINOR=${TYPE_MINOR:-feat}
 readonly MSG_PATCH=${TYPE_PATCH:-fix}
 
 error() {
-  echo -e ":error:$1"
+  echo ":error:$1"
   exit 1
 }
 
@@ -71,15 +71,17 @@ __diff() {
 
 __commit_type() {
   local diff="$1"
-  if [[ "$diff" == "major" ]]; then
+  case "$diff" in
+  major)
     echo "$MSG_MAJOR"
-  elif [[ "$diff" == "minor" ]]; then
+    ;;
+  minor)
     echo "$MSG_MINOR"
-  elif [[ "$diff" == "patch" ]]; then
+    ;;
+  *)
     echo "$MSG_PATCH"
-  else
-    echo ""
-  fi
+    ;;
+  esac
 }
 
 diff=$(__diff "$SEMVER_TAG_ONE" "$SEMVER_TAG_TWO")
