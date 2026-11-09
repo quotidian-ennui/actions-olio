@@ -48,7 +48,7 @@ jobs:
       # https://github.com/rhysd/actionlint/pull/366
       # https://github.com/rhysd/actionlint/issues/350
       - name: actionlint
-        uses: reviewdog/action-actionlint@619a81ec64ff8c0211cd6146eb2b21e8f1d7f440 # v1.81.1
+        uses: reviewdog/action-actionlint@7abf25e1607ec65838b73d0484ff31f8e9499d80 # v1.81.2
         if: steps.changes.outputs.workflows_any_changed == 'true'
         with:
           reporter: github-pr-review
